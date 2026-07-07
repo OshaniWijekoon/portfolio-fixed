@@ -1,3 +1,8 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { fadeUp, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
+
 type Project = {
   number: string;
   title?: string;
@@ -45,16 +50,27 @@ const projects: Project[] = [
 // above the old desktop value so it keeps growing on wide screens instead of
 // plateauing. Tracking (letter-spacing) is expressed in `em` so it scales
 // automatically with its paired font-size instead of needing its own clamp.
+//
+// Motion: each card fades/rises in with a staggered delay based on its
+// index, using the same shared timing as every other section.
 
-function ProjectCard(props: { project: Project }) {
+function ProjectCard(props: { project: Project; index: number }) {
   const project = props.project;
 
   return (
-    <article className={"absolute " + project.className}>
+    <motion.article
+      className={"absolute " + project.className}
+      initial="hidden"
+      whileInView="show"
+      viewport={viewport}
+      variants={fadeUp}
+      transition={revealTransition(staggerDelay(props.index, 0.12))}
+    >
       <div className="relative h-[clamp(106px,12.56vw,300px)] bg-black">
         <span
           aria-hidden="true"
-          className="absolute right-[clamp(3px,0.46vw,11px)] top-[clamp(8px,0.66vw,16px)] z-10 font-joan text-[clamp(33px,3.77vw,90px)] leading-none text-white [writing-mode:vertical-rl]"
+          className="absolute right-[clamp(6px,0.66vw,16px)] top-[clamp(10px,0.99vw,24px)] z-10 text-[clamp(18px,2.05vw,49px)] leading-none text-white [writing-mode:vertical-rl]"
+          style={{ fontFamily: '"Times New Roman", serif' }}
         >
           {project.number}
         </span>
@@ -89,7 +105,7 @@ function ProjectCard(props: { project: Project }) {
           </div>
         ) : null}
       </div>
-    </article>
+    </motion.article>
   );
 }
 
@@ -128,24 +144,37 @@ export default function Projects() {
             className="absolute right-[11.2%] top-[18.9%] h-px w-[1%] bg-[#a4a4a4]"
           />
 
-          <h2 className="absolute left-[4.2%] top-[14.2%] font-display text-[clamp(25px,3.77vw,90px)] uppercase leading-none tracking-[-0.06em] text-black">
+          <motion.h2
+            className="absolute left-[4.2%] top-[14.2%] font-display text-[clamp(25px,3.77vw,90px)] uppercase leading-none tracking-[-0.06em] text-black"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={viewport}
+            transition={revealTransition()}
+          >
             Projects
-          </h2>
+          </motion.h2>
 
           <div className="absolute inset-x-[2.1%] bottom-0 top-0">
-            {projects.map(function (project) {
-              return <ProjectCard key={project.number} project={project} />;
+            {projects.map(function (project, index) {
+              return (
+                <ProjectCard key={project.number} project={project} index={index} />
+              );
             })}
           </div>
 
-          <a
+          <motion.a
             href="https://github.com/"
             target="_blank"
             rel="noopener noreferrer"
             className="absolute bottom-[4.8%] right-[5.3%] font-sans text-[clamp(6px,0.73vw,18px)] tracking-[0.16em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px] transition-opacity hover:opacity-70"
+            initial="hidden"
+            whileInView="show"
+            viewport={viewport}
+            variants={fadeUp}
+            transition={revealTransition(0.5)}
           >
             GitHub
-          </a>
+          </motion.a>
         </div>
       </div>
     </section>

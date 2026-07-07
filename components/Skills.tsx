@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { fadeUp, scaleIn, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
 
 type SkillCard = {
   title: string;
@@ -73,6 +77,7 @@ function CornerBrackets() {
 function SkillCardBlock(props: {
   card: SkillCard;
   className?: string;
+  index?: number;
 }) {
   const card = props.card;
   const extraClass = props.className ?? "border border-[#d9d9d9]";
@@ -81,13 +86,18 @@ function SkillCardBlock(props: {
     : "inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] tracking-[0.15em] text-black";
 
   return (
-    <div
+    <motion.div
       className={
         "relative px-[clamp(20px,1.38vw,32px)] py-[clamp(24px,1.65vw,38px)] " +
         card.height +
         " " +
         extraClass
       }
+      initial="hidden"
+      whileInView="show"
+      viewport={viewport}
+      variants={fadeUp}
+      transition={revealTransition(staggerDelay(props.index ?? 0, 0.1))}
     >
       {card.bracketCorners ? <CornerBrackets /> : null}
       <h3 className={titleClass}>{card.title}</h3>
@@ -100,7 +110,7 @@ function SkillCardBlock(props: {
           );
         })}
       </ul>
-    </div>
+    </motion.div>
   );
 }
 
@@ -113,7 +123,18 @@ function StatCard(props: { value: string; label: string; index: number }) {
 
   return (
     <div className="relative flex flex-1 items-center justify-center py-[clamp(40px,2.75vw,64px)]">
-      <div className="relative h-[clamp(98px,6.74vw,157px)] w-[clamp(105px,7.22vw,168px)]">
+      {/* Motion is applied to this wrapper (scale + fade "pop in"), while
+          the rotation stays a static Tailwind class on the inner frames
+          below — keeps the settled tilt intact without fighting framer's
+          own transform. */}
+      <motion.div
+        className="relative h-[clamp(98px,6.74vw,157px)] w-[clamp(105px,7.22vw,168px)]"
+        initial="hidden"
+        whileInView="show"
+        viewport={viewport}
+        variants={scaleIn}
+        transition={revealTransition(staggerDelay(props.index, 0.15))}
+      >
         {/* back frame — a second plain sheet peeking out behind the front card */}
         <span
           aria-hidden="true"
@@ -145,7 +166,7 @@ function StatCard(props: { value: string; label: string; index: number }) {
             {props.label}
           </span>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -163,26 +184,44 @@ function StatCard(props: { value: string; label: string; index: number }) {
  * and every fixed size below is a clamp() scaled off the original 1454px
  * design reference (vw = value / 1454 * 100), floored at the original size
  * and ceilinged well above it so it keeps growing on wide screens.
+ *
+ * Motion: the black banner slides down, skill cards stagger up one by one,
+ * the big heading fades up, the hand photo fades/scales in, and the stat
+ * cards pop in with a stagger — all using the same shared timing as the
+ * rest of the site.
  */
 export default function Skills() {
   return (
     <section id="skills" className="relative w-full bg-[#f0f0ee]">
-      {/* Mobile layout — unchanged, this is a fixed small-viewport layout
-          shown only below the sm breakpoint. */}
+      {/* Mobile layout — unchanged structurally, this is a fixed
+          small-viewport layout shown only below the sm breakpoint. */}
       <div className="px-6 py-16 sm:hidden">
-        <div className="bg-black px-4 py-5 text-center">
+        <motion.div
+          className="bg-black px-4 py-5 text-center"
+          initial={{ opacity: 0, y: -16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewport}
+          transition={revealTransition()}
+        >
           <p
             className="text-[20px] uppercase leading-[1.25] tracking-[-1.5px] text-white"
             style={{ fontFamily: '"Times New Roman", serif' }}
           >
             design with purpose, building with precision
           </p>
-        </div>
+        </motion.div>
         <div className="mt-8 flex flex-col gap-4">
-          {skillCards.map(function (card) {
-            return <SkillCardBlock key={card.title} card={card} />;
+          {skillCards.map(function (card, index) {
+            return <SkillCardBlock key={card.title} card={card} index={index} />;
           })}
-          <div className="border border-[#d9d9d9] px-5 py-6">
+          <motion.div
+            className="border border-[#d9d9d9] px-5 py-6"
+            initial="hidden"
+            whileInView="show"
+            viewport={viewport}
+            variants={fadeUp}
+            transition={revealTransition(staggerDelay(skillCards.length, 0.1))}
+          >
             <h3 className="inline-block border-b border-black pb-1 font-body text-[24px] lowercase tracking-[3.5px] text-black">
               Mobile Development
             </h3>
@@ -196,29 +235,48 @@ export default function Skills() {
               <li>MongoDB</li>
               <li>MySQL</li>
             </ul>
-          </div>
+          </motion.div>
         </div>
-        <div className="mt-8 border border-[#d9d9d9] px-4 py-10 text-center">
+        <motion.div
+          className="mt-8 border border-[#d9d9d9] px-4 py-10 text-center"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition()}
+        >
           <h2 className="font-display text-[36px] uppercase leading-[1.1] tracking-[-2px] text-black">
             Skills &amp;
             <br />
             Certifications
           </h2>
-        </div>
-        <div className="relative mt-4 h-[320px] w-full overflow-hidden">
+        </motion.div>
+        <motion.div
+          className="relative mt-4 h-[320px] w-full overflow-hidden"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={scaleIn}
+          transition={revealTransition(0.1)}
+        >
           <Image
             src="/images/skills-hand.jpg"
             alt=""
             fill
             className="object-cover object-center"
           />
-        </div>
-        <a
+        </motion.div>
+        <motion.a
           href="#certifications"
           className="mt-6 flex h-[73px] w-[226px] items-center justify-center rounded-tl-[15px] rounded-br-[15px] bg-black font-body text-[16px] capitalize tracking-[0.5px] text-white"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition(0.15)}
         >
           Certifications
-        </a>
+        </motion.a>
         <div className="relative mt-4 border border-[#d9d9d9] bg-black">
           <span
             aria-hidden="true"
@@ -254,28 +312,42 @@ export default function Skills() {
       <div className="relative mx-auto hidden w-full px-[clamp(55px,3.78vw,88px)] pb-20 pt-10 sm:block">
         <div className="relative grid grid-cols-[82fr_186fr_82fr]">
           {/* Black banner spanning all columns */}
-          <div className="pointer-events-none absolute left-0 right-0 top-[clamp(47px,3.23vw,75px)] z-20 flex h-[clamp(86px,5.92vw,138px)] items-center justify-center bg-black px-[clamp(24px,1.65vw,38px)]">
+          <motion.div
+            className="pointer-events-none absolute left-0 right-0 top-[clamp(47px,3.23vw,75px)] z-20 flex h-[clamp(86px,5.92vw,138px)] items-center justify-center bg-black px-[clamp(24px,1.65vw,38px)]"
+            initial={{ opacity: 0, y: -24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={viewport}
+            transition={revealTransition()}
+          >
             <p
               className="text-center text-[clamp(32px,2.2vw,51px)] uppercase leading-[clamp(40px,2.75vw,64px)] tracking-[-0.11em] text-[#fffefe]"
               style={{ fontFamily: '"Times New Roman", serif' }}
             >
               design with purpose, building with precision
             </p>
-          </div>
+          </motion.div>
 
           {/* ── Column 1: skill categories ── */}
           <div className="flex flex-col border-l border-[#d9d9d9]">
             <div className="h-[clamp(250px,17.19vw,400px)] border-r border-t border-[#d9d9d9]" />
-            {skillCards.map(function (card) {
+            {skillCards.map(function (card, index) {
               return (
                 <SkillCardBlock
                   key={card.title}
                   card={card}
+                  index={index}
                   className="border-r border-t border-[#d9d9d9]"
                 />
               );
             })}
-            <div className="h-[clamp(224px,15.41vw,358px)] border border-[#d9d9d9] px-[clamp(20px,1.38vw,32px)] py-[clamp(24px,1.65vw,38px)]">
+            <motion.div
+              className="h-[clamp(224px,15.41vw,358px)] border border-[#d9d9d9] px-[clamp(20px,1.38vw,32px)] py-[clamp(24px,1.65vw,38px)]"
+              initial="hidden"
+              whileInView="show"
+              viewport={viewport}
+              variants={fadeUp}
+              transition={revealTransition(staggerDelay(skillCards.length, 0.1))}
+            >
               <h3 className="inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] lowercase tracking-[0.15em] text-black">
                 Mobile Development
               </h3>
@@ -289,40 +361,58 @@ export default function Skills() {
                 <li>MongoDB</li>
                 <li>MySQL</li>
               </ul>
-            </div>
+            </motion.div>
           </div>
 
           {/* ── Column 2: title + image + bottom cell ── */}
           <div className="flex flex-col border-[#d9d9d9]">
             <div className="h-[clamp(132px,9.08vw,211px)] border-r border-t border-[#d9d9d9]" />
-            <div className="flex h-[clamp(140px,9.6vw,224px)] items-center justify-center border border-[#d9d9d9] px-[clamp(24px,1.65vw,38px)] text-center">
+            <motion.div
+              className="flex h-[clamp(140px,9.6vw,224px)] items-center justify-center border border-[#d9d9d9] px-[clamp(24px,1.65vw,38px)] text-center"
+              initial="hidden"
+              whileInView="show"
+              viewport={viewport}
+              variants={fadeUp}
+              transition={revealTransition(0.1)}
+            >
               <h2 className="font-display text-[clamp(46px,3.2vw,74px)] uppercase leading-[clamp(52px,3.55vw,83px)] tracking-[-0.05em] text-black">
                 Skills &amp;
                 <br />
                 Certifications
               </h2>
-            </div>
-            <div className="relative min-h-[clamp(513px,35.28vw,821px)] flex-1 border border-[#d9d9d9]">
+            </motion.div>
+            <motion.div
+              className="relative min-h-[clamp(650px,44.6vw,1040px)] flex-1 border border-[#d9d9d9]"
+              initial={{ opacity: 0, scale: 1.05 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={viewport}
+              transition={revealTransition(0.2)}
+            >
               <Image
                 src="/images/skills-hand.jpg"
                 alt=""
                 fill
-                className="object-cover object-center"
+                className="object-cover object-top"
                 sizes="(min-width: 640px) 51vw, 744px"
               />
-            </div>
+            </motion.div>
           </div>
 
           {/* ── Column 3: certifications + stats ── */}
           <div className="flex flex-col border-r border-[#d9d9d9]">
             <div className="h-[clamp(249px,17.13vw,398px)] border border-[#d9d9d9]" />
             <div className="flex h-[clamp(224px,15.41vw,358px)] items-center justify-center border-x border-b border-[#d9d9d9]">
-              <a
+              <motion.a
                 href="#certifications"
                 className="flex h-[clamp(73px,5.02vw,117px)] w-[clamp(226px,15.54vw,362px)] items-center justify-center rounded-tl-[clamp(15px,1.03vw,24px)] rounded-br-[clamp(15px,1.03vw,24px)] bg-black font-body text-[clamp(12px,0.83vw,20px)] capitalize tracking-[0.03em] text-white transition-opacity hover:opacity-80"
+                initial="hidden"
+                whileInView="show"
+                viewport={viewport}
+                variants={fadeUp}
+                transition={revealTransition(0.15)}
               >
                 Certifications
-              </a>
+              </motion.a>
             </div>
             <div className="relative flex min-h-[clamp(616px,42.37vw,986px)] flex-1 flex-col border border-[#d9d9d9] bg-black">
               <span

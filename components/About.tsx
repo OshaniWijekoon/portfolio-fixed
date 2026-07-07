@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { fadeUp, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
 
 type FocusArea = {
   title: string;
@@ -67,16 +71,30 @@ function AboutContent() {
     <>
       {/* ===================== LEFT COLUMN ===================== */}
       <div className="absolute left-0 top-[6.5%] h-[93.5%] w-[50.1%] overflow-hidden bg-white">
-        <div className="absolute left-[8.18%] top-0 h-[20.98%] w-[27.44%] bg-[#f2f2f2]">
+        <motion.div
+          className="absolute left-[8.18%] top-0 h-[20.98%] w-[27.44%] bg-[#f2f2f2]"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition()}
+        >
           <Image
             src="/images/profile.jpg"
             alt="Oshani Wijekoon"
             fill
             className="object-cover"
           />
-        </div>
+        </motion.div>
 
-        <div className="absolute left-[7.65%] top-[27.28%] w-[42.2%]">
+        <motion.div
+          className="absolute left-[7.65%] top-[27.28%] w-[42.2%]"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition(0.1)}
+        >
           <h3 className={`${headingText} font-normal uppercase text-black`}>
             Profile
           </h3>
@@ -86,32 +104,54 @@ function AboutContent() {
             enjoy transforming unique ideas into user-friendly and visually
             appealing digital solutions.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="absolute left-[7.65%] top-[50.03%] w-[70.45%]">
+        <motion.div
+          className="absolute left-[7.65%] top-[50.03%] w-[70.45%]"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition(0.15)}
+        >
           <h3 className={`${headingText} font-normal uppercase text-black`}>
             My Focus Areas
           </h3>
           <div className="mt-[3%] flex items-stretch gap-[2.64%]">
             <span aria-hidden="true" className="w-px bg-gray-200" />
             <div className="flex flex-1 flex-col gap-[6.33%]">
-              {focusAreas.map(function (area) {
+              {focusAreas.map(function (area, index) {
                 return (
-                  <div key={area.title} className="flex flex-col gap-[1.06%]">
+                  <motion.div
+                    key={area.title}
+                    className="flex flex-col gap-[1.06%]"
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={viewport}
+                    variants={fadeUp}
+                    transition={revealTransition(staggerDelay(index, 0.1, 0.2))}
+                  >
                     <h4
                       className={`${subheadingText} inline-block font-normal text-black underline underline-offset-[3px]`}
                     >
                       {area.title}
                     </h4>
                     <p className={bodyText}>{area.description}</p>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="absolute bottom-0 left-0 h-[16.79%] w-full bg-black px-[5.8%] py-[8%]">
+        <motion.div
+          className="absolute bottom-0 left-0 h-[16.79%] w-full bg-black px-[5.8%] py-[8%]"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition(0.2)}
+        >
           <h4 className={`${subheadingText} font-normal text-white`}>
             Present
           </h4>
@@ -121,12 +161,19 @@ function AboutContent() {
             problem-solving skills while preparing for a career in software
             engineering and UI/UX design.
           </p>
-        </div>
+        </motion.div>
       </div>
 
       {/* ===================== RIGHT COLUMN ===================== */}
       <div className="absolute left-[50.23%] top-[6.5%] h-[93.5%] w-[49.77%] overflow-hidden bg-white">
-        <div className="absolute left-[24.17%] top-[7.48%] w-[66.5%]">
+        <motion.div
+          className="absolute left-[24.17%] top-[7.48%] w-[66.5%]"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition()}
+        >
           <h3 className={`${headingText} font-normal uppercase text-black`}>
             Education
           </h3>
@@ -135,42 +182,68 @@ function AboutContent() {
             <br />
             BSc (Hons) in IT Specializing Information Technology
           </p>
-        </div>
+        </motion.div>
 
-        <div className="absolute left-[24.17%] top-[21.31%] w-[66.8%]">
+        <motion.div
+          className="absolute left-[24.17%] top-[21.31%] w-[66.8%]"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition(0.1)}
+        >
           <h3 className={`${headingText} font-normal uppercase text-black`}>
             Academic Journy
           </h3>
           <div className="mt-[3.19%] flex flex-col gap-[2.1%]">
-            {milestones.map(function (item) {
+            {milestones.map(function (item, index) {
               return (
-                <div key={item.year} className="flex flex-col gap-[1.06%]">
+                <motion.div
+                  key={item.year}
+                  className="flex flex-col gap-[1.06%]"
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={viewport}
+                  variants={fadeUp}
+                  transition={revealTransition(staggerDelay(index, 0.1, 0.2))}
+                >
                   <h4
                     className={`${milestoneHeadText} inline-block font-normal text-black underline underline-offset-[3px]`}
                   >
                     {item.year}
                   </h4>
                   <p className={bodyText}>{item.description}</p>
-                </div>
+                </motion.div>
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
-        <a
+        <motion.a
           href="/resume.pdf"
           target="_blank"
           rel="noopener noreferrer"
           className="absolute left-[24.17%] top-[60.07%] flex h-[5.25%] w-[29.75%] items-center justify-center rounded-tl-2xl rounded-br-2xl bg-black transition-opacity hover:opacity-80"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition(0.5)}
         >
           <span className={buttonText}>View Resume</span>
-        </a>
+        </motion.a>
       </div>
 
       {/* ===================== TITLE + DIVIDER + DECORATIVE TICK ===================== */}
-      <h2 className="absolute left-1/2 top-0 -translate-x-1/2 text-[clamp(34px,4.76vw,104px)] font-['Inria_Serif'] font-normal uppercase leading-tight text-black">
+      <motion.h2
+        className="absolute left-1/2 top-0 -translate-x-1/2 text-[clamp(34px,4.76vw,104px)] font-['Inria_Serif'] font-normal uppercase leading-tight text-black"
+        initial={{ opacity: 0, y: -20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={viewport}
+        transition={revealTransition()}
+      >
         About
-      </h2>
+      </motion.h2>
       {/* Full-height vertical divider between the two columns. Drawn as its
           own element (same approach as the tick below) rather than as a
           border on the column divs, since the column-border approach wasn't
@@ -202,10 +275,23 @@ export default function About() {
 
       {/* ===================== MOBILE ===================== */}
       <div className="bg-white px-6 py-16 sm:hidden">
-        <h2 className="text-center text-[42px] font-['Inria_Serif'] uppercase leading-none text-black">
+        <motion.h2
+          className="text-center text-[42px] font-['Inria_Serif'] uppercase leading-none text-black"
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewport}
+          transition={revealTransition()}
+        >
           About
-        </h2>
-        <div className="mx-auto mt-8 h-[190px] w-[140px] overflow-hidden bg-[#f2f2f2]">
+        </motion.h2>
+        <motion.div
+          className="mx-auto mt-8 h-[190px] w-[140px] overflow-hidden bg-[#f2f2f2]"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition(0.1)}
+        >
           <Image
             src="/images/profile.jpg"
             alt="Oshani Wijekoon"
@@ -213,9 +299,15 @@ export default function About() {
             height={190}
             className="h-full w-full object-cover"
           />
-        </div>
-        <div className="mx-auto mt-10 max-w-[420px] space-y-8">
-          <div>
+        </motion.div>
+        <motion.div
+          className="mx-auto mt-10 max-w-[420px] space-y-8"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
+        >
+          <motion.div variants={fadeUp} transition={revealTransition()}>
             <h3 className="text-[22px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black">
               Profile
             </h3>
@@ -225,9 +317,9 @@ export default function About() {
               engineering. I enjoy transforming unique ideas into
               user-friendly and visually appealing digital solutions.
             </p>
-          </div>
+          </motion.div>
 
-          <div>
+          <motion.div variants={fadeUp} transition={revealTransition()}>
             <h3 className="text-[18px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black">
               My Focus Areas
             </h3>
@@ -245,9 +337,13 @@ export default function About() {
                 );
               })}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-black px-6 py-6 text-white">
+          <motion.div
+            className="bg-black px-6 py-6 text-white"
+            variants={fadeUp}
+            transition={revealTransition()}
+          >
             <h4 className="text-[16px] font-['JejuMyeongjo'] tracking-[0.12em]">
               Present
             </h4>
@@ -257,9 +353,9 @@ export default function About() {
               problem-solving skills while preparing for a career in software
               engineering and UI/UX design.
             </p>
-          </div>
+          </motion.div>
 
-          <div>
+          <motion.div variants={fadeUp} transition={revealTransition()}>
             <h3 className="text-[18px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black">
               Education
             </h3>
@@ -269,9 +365,9 @@ export default function About() {
             <p className="text-[13px] font-['Instrument_Sans'] capitalize tracking-wide text-zinc-600">
               BSc (Hons) in IT Specializing Information Technology
             </p>
-          </div>
+          </motion.div>
 
-          <div>
+          <motion.div variants={fadeUp} transition={revealTransition()}>
             <h3 className="text-[18px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black">
               Academic Journey
             </h3>
@@ -289,17 +385,19 @@ export default function About() {
                 );
               })}
             </div>
-          </div>
+          </motion.div>
 
-          <a
+          <motion.a
             href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block rounded-tl-2xl rounded-br-2xl bg-black px-8 py-3 text-center text-[13px] font-['JejuMyeongjo'] capitalize tracking-wide text-white"
+            variants={fadeUp}
+            transition={revealTransition()}
           >
             View Resume
-          </a>
-        </div>
+          </motion.a>
+        </motion.div>
       </div>
     </section>
   );
