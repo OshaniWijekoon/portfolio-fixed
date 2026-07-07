@@ -1,10 +1,19 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { fadeUp, scaleIn, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
 
 const navLinks = [
   { href: "#about", label: "About" },
   { href: "#projects", label: "Projects" },
   { href: "#skills", label: "Skills" },
   { href: "#contact", label: "Contact" },
+];
+
+const bottomLinks = [
+  { href: "/resume.pdf", label: "View Resume ↗", external: true },
+  { href: "#projects", label: "See Projects", external: false },
 ];
 
 /**
@@ -16,12 +25,18 @@ const navLinks = [
  *
  * Sizing uses the same fluid clamp() approach as the rest of the site,
  * scaled off a 1512px design reference (vw = value / 1512 * 100).
+ *
+ * Mobile: the 900/500 aspect ratio is too wide/short on narrow screens
+ * (crops the photo and squeezes the name), so below `sm` it switches to a
+ * taller 3/4 ratio and the bottom links stack instead of sitting inline.
+ * Desktop (`sm:` and up) is untouched — every class active at `sm:` and
+ * above resolves to exactly what the original markup had.
  */
 export default function Hero() {
   return (
     <section
       id="home"
-      className="relative flex aspect-[1050/500] w-full flex-col overflow-hidden bg-[#f4f4f2]"
+      className="relative flex aspect-[3/4] w-full flex-col overflow-hidden bg-[#f4f4f2] sm:aspect-[900/500]"
     >
       {/* Background photo */}
       <div aria-hidden="true" className="absolute inset-0">
@@ -38,27 +53,39 @@ export default function Hero() {
       {/* Faint center divider, matching the hairline style used elsewhere */}
       <span
         aria-hidden="true"
-        className="absolute bottom-0 left-1/2 top-0 z-10 w-px -translate-x-1/2 bg-[#a4a4a4]/60"
+        className="absolute bottom-0 left-1/2 top-0 z-10 hidden w-px -translate-x-1/2 bg-[#a4a4a4]/60 sm:block"
       />
 
       {/* Nav */}
       <nav className="relative z-20 flex flex-wrap items-center gap-[clamp(20px,1.85vw,44px)] px-[clamp(24px,2.65vw,64px)] pt-[clamp(24px,2.65vw,64px)]">
-        {navLinks.map(function (link) {
+        {navLinks.map(function (link, index) {
           return (
-            <a
+            <motion.a
               key={link.label}
               href={link.href}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={viewport}
+              transition={revealTransition(staggerDelay(index, 0.08))}
               className="font-display text-[clamp(13px,0.93vw,22px)] uppercase tracking-[0.2em] text-black transition-opacity hover:opacity-60"
             >
               {link.label}
-            </a>
+            </motion.a>
           );
         })}
       </nav>
 
       {/* Centered name block */}
       <div className="relative z-20 flex flex-1 flex-col items-center justify-center px-6 text-center">
-        <h1 className="text-center">
+        <motion.h1
+          variants={scaleIn}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          transition={revealTransition(0.15)}
+          className="text-center"
+        >
           <span className="block font-['Inria_Serif'] text-[clamp(40px,6.35vw,154px)] uppercase leading-[clamp(48px,7.41vw,180px)] text-black">
             Oshani
             <br />
@@ -66,28 +93,39 @@ export default function Hero() {
           <span className="block font-['Inria_Serif'] text-[clamp(40px,6.35vw,154px)] uppercase leading-[clamp(48px,7.41vw,180px)] text-neutral-400">
             Wijekoon
           </span>
-        </h1>
-        <p className="mt-[clamp(12px,1.06vw,26px)] font-joan text-[clamp(15px,1.59vw,38px)] text-black">
+        </motion.h1>
+        <motion.p
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          transition={revealTransition(0.35)}
+          className="mt-[clamp(12px,1.06vw,26px)] font-joan text-[clamp(15px,1.59vw,38px)] text-black"
+        >
           UI/UX &amp; Web Developer
-        </p>
+        </motion.p>
       </div>
 
-      {/* Bottom-right links */}
-      <div className="relative z-20 flex justify-end gap-[clamp(20px,1.85vw,44px)] px-[clamp(24px,2.65vw,64px)] pb-[clamp(24px,2.65vw,64px)]">
-        <a
-          href="/resume.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-display text-[clamp(13px,0.93vw,22px)] uppercase tracking-[0.15em] text-black transition-opacity hover:opacity-60"
-        >
-          View Resume ↗
-        </a>
-        <a
-          href="#projects"
-          className="font-display text-[clamp(13px,0.93vw,22px)] uppercase tracking-[0.15em] text-black transition-opacity hover:opacity-60"
-        >
-          See Projects
-        </a>
+      {/* Bottom links — stacked/centered on mobile, inline right on sm+ */}
+      <div className="relative z-20 flex flex-col items-center gap-[clamp(12px,1.85vw,44px)] px-[clamp(24px,2.65vw,64px)] pb-[clamp(24px,2.65vw,64px)] sm:flex-row sm:items-stretch sm:justify-end sm:gap-[clamp(20px,1.85vw,44px)]">
+        {bottomLinks.map(function (link, index) {
+          return (
+            <motion.a
+              key={link.label}
+              href={link.href}
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noopener noreferrer" : undefined}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={viewport}
+              transition={revealTransition(staggerDelay(index, 0.08, 0.4))}
+              className="font-display text-[clamp(13px,0.93vw,22px)] uppercase tracking-[0.15em] text-black transition-opacity hover:opacity-60"
+            >
+              {link.label}
+            </motion.a>
+          );
+        })}
       </div>
     </section>
   );
