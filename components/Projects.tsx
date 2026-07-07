@@ -1,0 +1,153 @@
+type Project = {
+  number: string;
+  title?: string;
+  description?: string;
+  techLabel?: string;
+  techItems?: string[];
+  className: string;
+};
+
+const projects: Project[] = [
+  {
+    number: "01",
+    title: "Mobile Application UI/UX Design.",
+    description: "Designed a user-centered mobile application interface.",
+    techLabel: "Tools",
+    techItems: ["Figma", "Canva"],
+    className: "left-[2.1%] top-[39%] w-[21.7%]",
+  },
+  {
+    number: "02",
+    title: "Torvana - Tour Guide Platform.",
+    description: "Developed a full-stack tour guide web application.",
+    techLabel: "Tech Stack",
+    techItems: ["MERN Stack"],
+    className: "left-[27.1%] top-[27.5%] w-[21.7%]",
+  },
+  {
+    number: "03",
+    title: "Japanese Food Restaurant Mobile Application",
+    description:
+      "Developed a restaurant mobile application with a clean and intuitive UI.",
+    techLabel: "Tech Stack",
+    techItems: ["Kotlin", "Android Studio", "Firebase"],
+    className: "left-[52.1%] top-[39%] w-[21.7%]",
+  },
+  {
+    number: ".04",
+    className: "left-[77.1%] top-[27.5%] w-[21.7%]",
+  },
+];
+
+// Design scale reference, same approach used on the About page: every size
+// that used to jump once at the `sm` breakpoint now scales continuously with
+// viewport width (vw), floored at the old mobile value and ceilinged well
+// above the old desktop value so it keeps growing on wide screens instead of
+// plateauing. Tracking (letter-spacing) is expressed in `em` so it scales
+// automatically with its paired font-size instead of needing its own clamp.
+
+function ProjectCard(props: { project: Project }) {
+  const project = props.project;
+
+  return (
+    <article className={"absolute " + project.className}>
+      <div className="relative h-[clamp(106px,12.56vw,300px)] bg-black">
+        <span
+          aria-hidden="true"
+          className="absolute right-[clamp(3px,0.46vw,11px)] top-[clamp(8px,0.66vw,16px)] z-10 font-joan text-[clamp(33px,3.77vw,90px)] leading-none text-white [writing-mode:vertical-rl]"
+        >
+          {project.number}
+        </span>
+
+        {project.title ? (
+          <a
+            href="#"
+            className="absolute bottom-[clamp(13px,1.59vw,38px)] right-[clamp(8px,0.93vw,22px)] max-w-[86%] text-right font-body text-[clamp(7px,0.86vw,21px)] uppercase leading-[1.55] tracking-[0.15em] text-white underline decoration-[0.5px] underline-offset-[3px] transition-opacity hover:opacity-70 focus:outline-none focus-visible:ring-1 focus-visible:ring-white"
+          >
+            {project.title}
+          </a>
+        ) : null}
+      </div>
+
+      <div className="min-h-[clamp(96px,12.16vw,294px)] bg-[#f7f7f7] px-[clamp(10px,1.19vw,29px)] py-[clamp(14px,1.85vw,45px)] text-right">
+        {project.description ? (
+          <p className="ml-auto max-w-[92%] font-sans text-[clamp(6px,0.73vw,18px)] leading-[2] tracking-[0.29em] text-[#3e3e3e]">
+            {project.description}
+          </p>
+        ) : null}
+
+        {project.techItems && project.techItems.length > 0 ? (
+          <div className="mt-[clamp(9px,1.19vw,29px)]">
+            <p className="font-sans text-[clamp(6px,0.66vw,16px)] font-bold leading-none tracking-[0.18em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px]">
+              {project.techLabel}:
+            </p>
+            <ul className="mt-[clamp(5px,0.6vw,14px)] font-sans text-[clamp(6px,0.66vw,16px)] leading-[1.9] tracking-[0.24em] text-[#3e3e3e]">
+              {project.techItems.map(function (item) {
+                return <li key={item}>- {item}</li>;
+              })}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+export default function Projects() {
+  return (
+    <section id="projects" className="w-full overflow-hidden bg-white px-0 py-4 sm:py-6">
+      <div className="mx-auto w-full px-[2.6vw]">
+        <div className="relative mx-auto aspect-[596/354] w-full max-w-[3000px] min-h-[354px] overflow-hidden bg-white">
+          <span
+            aria-hidden="true"
+            className="absolute left-0 right-0 top-[2.2%] h-px bg-[#a4a4a4]"
+          />
+
+          <span
+            aria-hidden="true"
+            className="absolute bottom-0 left-0 right-0 h-px bg-[#a4a4a4]"
+          />
+          <span
+            aria-hidden="true"
+            className="absolute bottom-0 left-[1.5%] top-0 w-px bg-[#a4a4a4]"
+          />
+          <span
+            aria-hidden="true"
+            className="absolute bottom-0 right-[1%] top-0 w-px bg-[#a4a4a4]"
+          />
+          <span
+            aria-hidden="true"
+            className="absolute left-1/2 top-[2.2%] h-[18.8%] w-px bg-[#6b6b6b]"
+          />
+          <span
+            aria-hidden="true"
+            className="absolute left-[47%] top-[20.8%] h-px w-[7%] bg-[#d9d9d9]"
+          />
+          <span
+            aria-hidden="true"
+            className="absolute right-[11.2%] top-[18.9%] h-px w-[1%] bg-[#a4a4a4]"
+          />
+
+          <h2 className="absolute left-[4.2%] top-[14.2%] font-display text-[clamp(25px,3.77vw,90px)] uppercase leading-none tracking-[-0.06em] text-black">
+            Projects
+          </h2>
+
+          <div className="absolute inset-x-[2.1%] bottom-0 top-0">
+            {projects.map(function (project) {
+              return <ProjectCard key={project.number} project={project} />;
+            })}
+          </div>
+
+          <a
+            href="https://github.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute bottom-[4.8%] right-[5.3%] font-sans text-[clamp(6px,0.73vw,18px)] tracking-[0.16em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px] transition-opacity hover:opacity-70"
+          >
+            GitHub
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
