@@ -26,11 +26,10 @@ const bottomLinks = [
  * Sizing uses the same fluid clamp() approach as the rest of the site,
  * scaled off a 1512px design reference (vw = value / 1512 * 100).
  *
- * Mobile: the 900/500 aspect ratio is too wide/short on narrow screens
- * (crops the photo and squeezes the name), so below `sm` it switches to a
- * taller 3/4 ratio and the bottom links stack instead of sitting inline.
- * Desktop (`sm:` and up) is untouched — every class active at `sm:` and
- * above resolves to exactly what the original markup had.
+ * Mobile: name + subtitle + links are grouped and centered as a single
+ * unit (`sm:contents` makes the grouping wrapper disappear at `sm:` and
+ * up, so desktop falls back to the exact original 3-part flex layout —
+ * nav / flex-1 name block / bottom links).
  */
 export default function Hero() {
   return (
@@ -45,7 +44,7 @@ export default function Hero() {
           alt=""
           fill
           priority
-          className="object-cover object-center"
+          className="object-cover object-top sm:object-center"
           sizes="100vw"
         />
       </div>
@@ -76,56 +75,65 @@ export default function Hero() {
         })}
       </nav>
 
-      {/* Centered name block */}
-      <div className="relative z-20 flex flex-1 flex-col items-center justify-center px-6 text-center">
-        <motion.h1
-          variants={scaleIn}
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          transition={revealTransition(0.15)}
-          className="text-center"
-        >
-          <span className="block font-['Inria_Serif'] text-[clamp(40px,6.35vw,154px)] uppercase leading-[clamp(48px,7.41vw,180px)] text-black">
-            Oshani
-            <br />
-          </span>
-          <span className="block font-['Inria_Serif'] text-[clamp(40px,6.35vw,154px)] uppercase leading-[clamp(48px,7.41vw,180px)] text-neutral-400">
-            Wijekoon
-          </span>
-        </motion.h1>
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          transition={revealTransition(0.35)}
-          className="mt-[clamp(12px,1.06vw,26px)] font-joan text-[clamp(15px,1.59vw,38px)] text-black"
-        >
-          UI/UX &amp; Web Developer
-        </motion.p>
-      </div>
+      {/*
+        Mobile grouping wrapper: centers name+subtitle+links together
+        as one block. `sm:contents` removes this element from the box
+        model at sm+, so its two children become direct flex children
+        of <section> again — restoring the original desktop layout
+        exactly (name block flex-1, links pinned at bottom).
+      */}
+      <div className="flex flex-1 flex-col items-center justify-center gap-y-[clamp(24px,7vw,56px)] sm:contents">
+        {/* Centered name block */}
+        <div className="relative z-20 flex flex-col items-center justify-center px-6 text-center sm:flex-1">
+          <motion.h1
+            variants={scaleIn}
+            initial="hidden"
+            whileInView="show"
+            viewport={viewport}
+            transition={revealTransition(0.15)}
+            className="text-center"
+          >
+            <span className="block font-['Inria_Serif'] text-[clamp(40px,6.35vw,154px)] uppercase leading-[clamp(48px,7.41vw,180px)] text-black">
+              Oshani
+              <br />
+            </span>
+            <span className="block font-['Inria_Serif'] text-[clamp(40px,6.35vw,154px)] uppercase leading-[clamp(48px,7.41vw,180px)] text-neutral-400">
+              Wijekoon
+            </span>
+          </motion.h1>
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={viewport}
+            transition={revealTransition(0.35)}
+            className="mt-[clamp(12px,1.06vw,26px)] font-joan text-[clamp(15px,1.59vw,38px)] text-black"
+          >
+            UI/UX &amp; Web Developer
+          </motion.p>
+        </div>
 
-      {/* Bottom links — stacked/centered on mobile, inline right on sm+ */}
-      <div className="relative z-20 flex flex-col items-center gap-[clamp(12px,1.85vw,44px)] px-[clamp(24px,2.65vw,64px)] pb-[clamp(24px,2.65vw,64px)] sm:flex-row sm:items-stretch sm:justify-end sm:gap-[clamp(20px,1.85vw,44px)]">
-        {bottomLinks.map(function (link, index) {
-          return (
-            <motion.a
-              key={link.label}
-              href={link.href}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="show"
-              viewport={viewport}
-              transition={revealTransition(staggerDelay(index, 0.08, 0.4))}
-              className="font-display text-[clamp(13px,0.93vw,22px)] uppercase tracking-[0.15em] text-black transition-opacity hover:opacity-60"
-            >
-              {link.label}
-            </motion.a>
-          );
-        })}
+        {/* Bottom links — stacked/centered on mobile, inline right on sm+ */}
+        <div className="relative z-20 flex flex-col items-center gap-[clamp(12px,1.85vw,44px)] px-[clamp(24px,2.65vw,64px)] pb-[clamp(24px,2.65vw,64px)] sm:flex-row sm:items-stretch sm:justify-end sm:gap-[clamp(20px,1.85vw,44px)]">
+          {bottomLinks.map(function (link, index) {
+            return (
+              <motion.a
+                key={link.label}
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noopener noreferrer" : undefined}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="show"
+                viewport={viewport}
+                transition={revealTransition(staggerDelay(index, 0.08, 0.4))}
+                className="font-display text-[clamp(13px,0.93vw,22px)] uppercase tracking-[0.15em] text-black transition-opacity hover:opacity-60"
+              >
+                {link.label}
+              </motion.a>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
