@@ -34,30 +34,12 @@ function ArrowUpRightIcon() {
   );
 }
 
-/**
- * Hero / landing section.
- * Full-bleed background photo with a faint center divider line running
- * through it (same visual language as the hairlines used on the other
- * sections), a nav bar top-left, the stacked name treatment centered,
- * and resume/projects links bottom-right.
- *
- * Sizing uses the same fluid clamp() approach as the rest of the site,
- * scaled off a 1512px design reference (vw = value / 1512 * 100).
- *
- * Mobile: name + subtitle + links are grouped and centered as a single
- * unit (`sm:contents` makes the grouping wrapper disappear at `sm:` and
- * up, so desktop falls back to the exact original 3-part flex layout —
- * nav / flex-1 name block / bottom links). Background photo now uses the
- * same object-center crop on mobile as desktop, instead of object-top,
- * which was cropping the composition oddly on the tall 3:4 mobile frame.
- */
 export default function Hero() {
   return (
     <section
       id="home"
       className="relative flex aspect-[3/4] w-full flex-col overflow-hidden bg-[#f4f4f2] sm:aspect-[900/500]"
     >
-      {/* Background photo */}
       <div aria-hidden="true" className="absolute inset-0">
         <Image
           src="/images/hero.jpg"
@@ -69,13 +51,11 @@ export default function Hero() {
         />
       </div>
 
-      {/* Faint center divider, matching the hairline style used elsewhere */}
       <span
         aria-hidden="true"
         className="absolute bottom-0 left-1/2 top-0 z-10 hidden w-px -translate-x-1/2 bg-[#a4a4a4]/60 sm:block"
       />
 
-      {/* Nav */}
       <nav className="relative z-20 flex flex-wrap items-center gap-[clamp(20px,1.85vw,44px)] px-[clamp(24px,2.65vw,64px)] pt-[clamp(24px,2.65vw,64px)]">
         {navLinks.map(function (link, index) {
           return (
@@ -95,15 +75,7 @@ export default function Hero() {
         })}
       </nav>
 
-      {/*
-        Mobile grouping wrapper: centers name+subtitle+links together
-        as one block. `sm:contents` removes this element from the box
-        model at sm+, so its two children become direct flex children
-        of <section> again — restoring the original desktop layout
-        exactly (name block flex-1, links pinned at bottom).
-      */}
       <div className="flex flex-1 flex-col items-center justify-center gap-y-[clamp(24px,7vw,56px)] sm:contents">
-        {/* Centered name block */}
         <div className="relative z-20 flex flex-col items-center justify-center px-6 text-center sm:flex-1">
           <motion.h1
             variants={scaleIn}
@@ -133,7 +105,6 @@ export default function Hero() {
           </motion.p>
         </div>
 
-        {/* Bottom links — stacked/centered on mobile, inline right on sm+ */}
         <div className="relative z-20 flex flex-col items-center gap-[clamp(12px,1.85vw,44px)] px-[clamp(24px,2.65vw,64px)] pb-[clamp(24px,2.65vw,64px)] sm:flex-row sm:items-stretch sm:justify-end sm:gap-[clamp(20px,1.85vw,44px)]">
           {bottomLinks.map(function (link, index) {
             return (
