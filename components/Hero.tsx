@@ -12,9 +12,27 @@ const navLinks = [
 ];
 
 const bottomLinks = [
-  { href: "/resume.pdf", label: "View Resume ↗", external: true },
-  { href: "#projects", label: "See Projects", external: false },
+  { href: "/resume.pdf", label: "View Resume", external: true, showArrow: true },
+  { href: "#projects", label: "See Projects", external: false, showArrow: false },
 ];
+
+function ArrowUpRightIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="ml-1 inline-block h-[0.85em] w-[0.85em] align-middle"
+      aria-hidden="true"
+    >
+      <line x1="7" y1="17" x2="17" y2="7" />
+      <polyline points="7 7 17 7 17 17" />
+    </svg>
+  );
+}
 
 /**
  * Hero / landing section.
@@ -29,7 +47,9 @@ const bottomLinks = [
  * Mobile: name + subtitle + links are grouped and centered as a single
  * unit (`sm:contents` makes the grouping wrapper disappear at `sm:` and
  * up, so desktop falls back to the exact original 3-part flex layout —
- * nav / flex-1 name block / bottom links).
+ * nav / flex-1 name block / bottom links). Background photo now uses the
+ * same object-center crop on mobile as desktop, instead of object-top,
+ * which was cropping the composition oddly on the tall 3:4 mobile frame.
  */
 export default function Hero() {
   return (
@@ -44,7 +64,7 @@ export default function Hero() {
           alt=""
           fill
           priority
-          className="object-cover object-top sm:object-center"
+          className="object-cover object-center"
           sizes="100vw"
         />
       </div>
@@ -130,6 +150,7 @@ export default function Hero() {
                 className="font-display text-[clamp(13px,0.93vw,22px)] uppercase tracking-[0.15em] text-black transition-opacity hover:opacity-60"
               >
                 {link.label}
+                {link.showArrow ? <ArrowUpRightIcon /> : null}
               </motion.a>
             );
           })}
