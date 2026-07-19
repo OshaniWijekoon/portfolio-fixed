@@ -51,11 +51,6 @@ export default function Hero() {
         />
       </div>
 
-      <span
-        aria-hidden="true"
-        className="absolute bottom-0 left-1/2 top-0 z-10 hidden w-px -translate-x-1/2 bg-[#a4a4a4]/60 sm:block"
-      />
-
       <nav className="relative z-20 flex flex-wrap items-center gap-[clamp(20px,1.85vw,44px)] px-[clamp(24px,2.65vw,64px)] pt-[clamp(24px,2.65vw,64px)]">
         {navLinks.map(function (link, index) {
           return (

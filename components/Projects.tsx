@@ -21,7 +21,7 @@ const projects: Project[] = [
     description: "Designed a user-centered mobile application interface.",
     techLabel: "Tools",
     techItems: ["Figma", "Canva"],
-    className: "left-[2.1%] top-[39%] w-[21.7%]",
+    className: "left-[2.1%] top-[39%] w-[28.2%]",
   },
   {
     number: "02",
@@ -30,7 +30,7 @@ const projects: Project[] = [
     description: "Developed a full-stack tour guide web application.",
     techLabel: "Tech Stack",
     techItems: ["MERN Stack"],
-    className: "left-[27.1%] top-[27.5%] w-[21.7%]",
+    className: "left-[36.4%] top-[27.5%] w-[28.2%]",
   },
   {
     number: "03",
@@ -39,11 +39,7 @@ const projects: Project[] = [
       "Developed a restaurant mobile application with a clean and intuitive UI.",
     techLabel: "Tech Stack",
     techItems: ["Kotlin", "Android Studio", "Firebase"],
-    className: "left-[52.1%] top-[39%] w-[21.7%]",
-  },
-  {
-    number: ".04",
-    className: "left-[77.1%] top-[27.5%] w-[21.7%]",
+    className: "left-[70.7%] top-[39%] w-[28.2%]",
   },
 ];
 
@@ -57,10 +53,39 @@ const projects: Project[] = [
 // Motion: each card fades/rises in with a staggered delay based on its
 // index, using the same shared timing as every other section.
 //
-// Mobile: the desktop layout below is absolutely-positioned 4-up grid that
+// Card count / spacing: originally 4 cards (the 4th, ".04", was an empty
+// placeholder) sat close together with a tight 3.3% gap. When it was
+// removed, the 3 remaining cards were first stretched out to a 15.8% gap
+// to fill the row — that read as too much empty space. The gap is now
+// pulled back in to ~6.1%, and card width increased slightly (21.7% ->
+// 28.2%) to compensate, so the row still reads as evenly filled without
+// the wide gaps.
+//
+// Card sizing: the bottom text panel used to be `min-h-*`, so cards with
+// more content (e.g. card 03's 3-item tech list) grew visibly taller than
+// the others. It's now a fixed `h-*` (same clamp values) so all three
+// cards share one uniform height regardless of content length, matching
+// the already-uniform width.
+//
+// Number / title spacing in the black panel: the number was top-anchored
+// and the title bottom-anchored inside a fairly tall black box, so the
+// wider cards left a long empty gap between them. The black box height is
+// now scaled down (~25% shorter, clamp(106,12.56vw,300) ->
+// clamp(80,9.4vw,225)) so the top-anchored number and bottom-anchored
+// title sit closer together, without needing to guess each title's
+// wrapped-line height. The number's own font size is scaled up to match
+// (clamp(26,2.6vw,62) -> clamp(34,3.4vw,80)) roughly proportional to how
+// much wider the cards got when the 4th card was removed.
+//
+// Text spacing: description/tech-list tracking and line-height were quite
+// wide (tracking-[0.29em]/[0.24em], leading-[2]/[1.9]), which is part of
+// what made the text panel feel oversized. Tightened to tracking-[0.15em]
+// and leading-[1.6] throughout so the copy sits more compactly.
+//
+// Mobile: the desktop layout below is absolutely-positioned 3-up grid that
 // only works down to a certain width. Below `sm` it's replaced entirely by
 // a simple full-width stacked list (MobileProjectCard) with fixed, legible
-// font sizes instead of the vw-scaled desktop values.
+// font sizes instead of the vw-scaled desktop values — left untouched.
 
 function ProjectCard(props: { project: Project; index: number }) {
   const project = props.project;
@@ -74,10 +99,10 @@ function ProjectCard(props: { project: Project; index: number }) {
       variants={fadeUp}
       transition={revealTransition(staggerDelay(props.index, 0.12))}
     >
-      <div className="relative h-[clamp(106px,12.56vw,300px)] bg-black">
+      <div className="relative h-[clamp(80px,9.4vw,225px)] bg-black">
         <span
           aria-hidden="true"
-          className="absolute right-[clamp(6px,0.66vw,16px)] top-[clamp(10px,0.99vw,24px)] z-10 text-[clamp(26px,2.6vw,62px)] leading-none text-white [writing-mode:vertical-rl]"
+          className="absolute right-[clamp(6px,0.66vw,16px)] top-[clamp(10px,0.99vw,24px)] z-10 text-[clamp(34px,3.4vw,80px)] leading-none text-white [writing-mode:vertical-rl]"
           style={{ fontFamily: '"Times New Roman", serif' }}
         >
           {project.number}
@@ -93,19 +118,19 @@ function ProjectCard(props: { project: Project; index: number }) {
         ) : null}
       </div>
 
-      <div className="min-h-[clamp(96px,12.16vw,294px)] bg-[#f7f7f7] px-[clamp(10px,1.19vw,29px)] py-[clamp(14px,1.85vw,45px)] text-right">
+      <div className="h-[clamp(96px,12.16vw,294px)] bg-[#f7f7f7] px-[clamp(10px,1.19vw,29px)] py-[clamp(14px,1.85vw,45px)] text-right">
         {project.description ? (
-          <p className="ml-auto max-w-[92%] font-sans text-[clamp(6px,0.73vw,18px)] leading-[2] tracking-[0.29em] text-[#3e3e3e]">
+          <p className="ml-auto max-w-[92%] font-sans text-[clamp(6px,0.73vw,18px)] leading-[1.6] tracking-[0.15em] text-[#3e3e3e]">
             {project.description}
           </p>
         ) : null}
 
         {project.techItems && project.techItems.length > 0 ? (
           <div className="mt-[clamp(9px,1.19vw,29px)]">
-            <p className="font-sans text-[clamp(6px,0.66vw,16px)] font-bold leading-none tracking-[0.18em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px]">
+            <p className="font-sans text-[clamp(6px,0.66vw,16px)] font-bold leading-none tracking-[0.12em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px]">
               {project.techLabel}:
             </p>
-            <ul className="mt-[clamp(5px,0.6vw,14px)] font-sans text-[clamp(6px,0.66vw,16px)] leading-[1.9] tracking-[0.24em] text-[#3e3e3e]">
+            <ul className="mt-[clamp(5px,0.6vw,14px)] font-sans text-[clamp(6px,0.66vw,16px)] leading-[1.6] tracking-[0.15em] text-[#3e3e3e]">
               {project.techItems.map(function (item) {
                 return <li key={item}>- {item}</li>;
               })}
