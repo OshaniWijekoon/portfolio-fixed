@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 type SkillCard = {
   title: string;
