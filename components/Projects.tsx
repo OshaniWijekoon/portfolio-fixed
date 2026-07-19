@@ -9,6 +9,7 @@ type Project = {
   description?: string;
   techLabel?: string;
   techItems?: string[];
+  href?: string;
   className: string;
 };
 
@@ -16,6 +17,7 @@ const projects: Project[] = [
   {
     number: "01",
     title: "Mobile Application UI/UX Design.",
+    href: "/mobile-clothing-store-app",
     description: "Designed a user-centered mobile application interface.",
     techLabel: "Tools",
     techItems: ["Figma", "Canva"],
@@ -24,6 +26,7 @@ const projects: Project[] = [
   {
     number: "02",
     title: "Torvana - Tour Guide Platform.",
+    href: "/torvana",
     description: "Developed a full-stack tour guide web application.",
     techLabel: "Tech Stack",
     techItems: ["MERN Stack"],
@@ -82,7 +85,7 @@ function ProjectCard(props: { project: Project; index: number }) {
 
         {project.title ? (
           <a
-            href="#"
+            href={project.href ?? "#"}
             className="absolute bottom-[clamp(13px,1.59vw,38px)] right-[clamp(8px,0.93vw,22px)] max-w-[86%] text-right font-body text-[clamp(7px,0.86vw,21px)] uppercase leading-[1.55] tracking-[0.15em] text-white underline decoration-[0.5px] underline-offset-[3px] transition-opacity hover:opacity-70 focus:outline-none focus-visible:ring-1 focus-visible:ring-white"
           >
             {project.title}
@@ -136,7 +139,7 @@ function MobileProjectCard(props: { project: Project; index: number }) {
         </span>
         {project.title ? (
           <a
-            href="#"
+            href={project.href ?? "#"}
             className="absolute bottom-3 right-3 max-w-[80%] text-right font-body text-[13px] uppercase leading-[1.4] tracking-[0.1em] text-white underline decoration-[0.5px] underline-offset-[3px]"
           >
             {project.title}

@@ -223,22 +223,24 @@ function AboutContent() {
           href="/resume.pdf"
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute left-[24.17%] top-[60.07%] flex h-[5.25%] w-[29.75%] items-center justify-center rounded-tl-2xl rounded-br-2xl bg-black transition-opacity hover:opacity-80"
+          className="absolute left-[24.17%] top-[60.07%] flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black transition-opacity hover:opacity-80"
           initial="hidden"
           whileInView="show"
           viewport={viewport}
           variants={fadeUp}
           transition={revealTransition(0.5)}
         >
-          <span className={buttonText}>View Resume</span>
+          <span className="font-['JejuMyeongjo'] text-[clamp(13px,0.79vw,18px)] capitalize tracking-[0.03em] text-white">
+            View Resume
+          </span>
         </motion.a>
       </div>
 
       {/* ===================== TITLE + DIVIDER + DECORATIVE TICK ===================== */}
       <motion.h2
-        className="absolute left-1/2 top-0 -translate-x-1/2 text-[clamp(34px,4.76vw,104px)] font-['Inria_Serif'] font-normal uppercase leading-tight text-black"
-        initial={{ opacity: 0, y: -20 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        className="absolute left-1/2 top-0 text-[clamp(34px,4.76vw,104px)] font-['Inria_Serif'] font-normal uppercase leading-tight text-black"
+        initial={{ opacity: 0, y: -20, x: "-50%" }}
+        whileInView={{ opacity: 1, y: 0, x: "-50%" }}
         viewport={viewport}
         transition={revealTransition()}
       >

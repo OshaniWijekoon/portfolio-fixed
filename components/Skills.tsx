@@ -1,8 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
+
+const MotionLink = motion(Link);
 
 type SkillCard = {
   title: string;
@@ -189,6 +192,14 @@ function StatCard(props: { value: string; label: string; index: number }) {
  * the big heading fades up, the hand photo fades/scales in, and the stat
  * cards pop in with a stagger — all using the same shared timing as the
  * rest of the site.
+ *
+ * The "Certifications" button navigates to the separate /certifications
+ * route (Next.js Link wrapped in motion via MotionLink) rather than
+ * anchor-scrolling, since Certifications now lives on its own page. Its
+ * size now matches the smaller "View Resume" button style used on About.
+ *
+ * Hand image is served from /webh.png (top-level public/ folder), and is
+ * sized larger than before to match the reference layout.
  */
 export default function Skills() {
   return (
@@ -252,7 +263,7 @@ export default function Skills() {
           </h2>
         </motion.div>
         <motion.div
-          className="relative mt-4 h-[320px] w-full overflow-hidden"
+          className="relative mt-4 h-[420px] w-full overflow-hidden"
           initial="hidden"
           whileInView="show"
           viewport={viewport}
@@ -260,15 +271,15 @@ export default function Skills() {
           transition={revealTransition(0.1)}
         >
           <Image
-            src="/images/skills-hand.jpg"
+            src="/webh.png"
             alt=""
             fill
             className="object-cover object-center"
           />
         </motion.div>
-        <motion.a
-          href="#certifications"
-          className="mt-6 flex h-[73px] w-[226px] items-center justify-center rounded-tl-[15px] rounded-br-[15px] bg-black font-body text-[16px] capitalize tracking-[0.5px] text-white"
+        <MotionLink
+          href="/certifications"
+          className="mt-6 flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black font-['JejuMyeongjo'] text-[clamp(13px,0.79vw,18px)] capitalize tracking-[0.03em] text-white"
           initial="hidden"
           whileInView="show"
           viewport={viewport}
@@ -276,7 +287,7 @@ export default function Skills() {
           transition={revealTransition(0.15)}
         >
           Certifications
-        </motion.a>
+        </MotionLink>
         <div className="relative mt-4 border border-[#d9d9d9] bg-black">
           <span
             aria-hidden="true"
@@ -382,14 +393,14 @@ export default function Skills() {
               </h2>
             </motion.div>
             <motion.div
-              className="relative min-h-[clamp(650px,44.6vw,1040px)] flex-1 border border-[#d9d9d9]"
+              className="relative min-h-[clamp(780px,54vw,1250px)] flex-1 border border-[#d9d9d9]"
               initial={{ opacity: 0, scale: 1.05 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={viewport}
               transition={revealTransition(0.2)}
             >
               <Image
-                src="/images/skills-hand.jpg"
+                src="/webh.png"
                 alt=""
                 fill
                 className="object-cover object-top"
@@ -402,9 +413,9 @@ export default function Skills() {
           <div className="flex flex-col border-r border-[#d9d9d9]">
             <div className="h-[clamp(249px,17.13vw,398px)] border border-[#d9d9d9]" />
             <div className="flex h-[clamp(224px,15.41vw,358px)] items-center justify-center border-x border-b border-[#d9d9d9]">
-              <motion.a
-                href="#certifications"
-                className="flex h-[clamp(73px,5.02vw,117px)] w-[clamp(226px,15.54vw,362px)] items-center justify-center rounded-tl-[clamp(15px,1.03vw,24px)] rounded-br-[clamp(15px,1.03vw,24px)] bg-black font-body text-[clamp(12px,0.83vw,20px)] capitalize tracking-[0.03em] text-white transition-opacity hover:opacity-80"
+              <MotionLink
+                href="/certifications"
+                className="flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black font-['JejuMyeongjo'] text-[clamp(13px,0.79vw,18px)] capitalize tracking-[0.03em] text-white transition-opacity hover:opacity-80"
                 initial="hidden"
                 whileInView="show"
                 viewport={viewport}
@@ -412,7 +423,7 @@ export default function Skills() {
                 transition={revealTransition(0.15)}
               >
                 Certifications
-              </motion.a>
+              </MotionLink>
             </div>
             <div className="relative flex min-h-[clamp(616px,42.37vw,986px)] flex-1 flex-col border border-[#d9d9d9] bg-black">
               <span
