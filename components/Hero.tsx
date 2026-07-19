@@ -42,7 +42,7 @@ export default function Hero() {
     >
       <div aria-hidden="true" className="absolute inset-0">
         <Image
-          src="/images/hero.jpg"
+          src="/hero.jpg"
           alt=""
           fill
           priority

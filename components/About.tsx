@@ -295,7 +295,7 @@ export default function About() {
           transition={revealTransition(0.1)}
         >
           <Image
-            src="/images/profile.jpg"
+            src="/profile.jpg"
             alt="Oshani Wijekoon"
             width={140}
             height={190}

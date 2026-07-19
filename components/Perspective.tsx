@@ -51,7 +51,7 @@ export default function Perspective() {
       <div className="flex flex-col items-center gap-8 px-6 py-16 text-center sm:hidden">
         <div className="relative h-[280px] w-[196px] overflow-hidden">
           <Image
-            src="/images/movement-section.jpg"
+            src="/movement-section.jpg"
             alt=""
             fill
             className="object-cover"

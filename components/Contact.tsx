@@ -80,7 +80,7 @@ export default function Contact() {
               transition={revealTransition()}
             >
               <Image
-                src="/images/contact-bg.jpg"
+                src="/contact-bg.jpg"
                 alt=""
                 fill
                 className="object-cover object-center"
