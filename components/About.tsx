@@ -80,7 +80,7 @@ function AboutContent() {
           transition={revealTransition()}
         >
           <Image
-            src="/images/profile.jpg"
+            src="/profile.jpg"
             alt="Oshani Wijekoon"
             fill
             className="object-cover"

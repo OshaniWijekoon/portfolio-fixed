@@ -24,7 +24,7 @@ export default function Perspective() {
         {/* portrait photo, centered on the viewport, painted over the line */}
         <div className="absolute left-1/2 top-1/2 z-10 h-[339px] w-[238px] -translate-x-1/2 -translate-y-1/2 overflow-hidden">
           <Image
-            src="/images/movement-section.jpg"
+            src="/movement-section.jpg"
             alt=""
             fill
             className="object-cover"
