@@ -155,7 +155,7 @@ function AboutContent() {
           <h4 className={`${subheadingText} font-normal text-white`}>
             Present
           </h4>
-          <p className="mt-[6%] text-[clamp(11px,1.19vw,26px)] font-['Instrument_Sans'] leading-[1.75] tracking-wide text-white">
+          <p className="mt-[2.5%] text-[clamp(11px,1.19vw,26px)] font-['Instrument_Sans'] leading-[1.75] tracking-wide text-white">
             Currently a 3rd Year, 2nd Semester Information Technology
             Undergraduate, continuously developing technical, creative, and
             problem-solving skills while preparing for a career in software
@@ -195,12 +195,12 @@ function AboutContent() {
           <h3 className={`${headingText} font-normal uppercase text-black`}>
             Academic Journy
           </h3>
-          <div className="mt-[3.19%] flex flex-col gap-[2.1%]">
+          <div className="mt-[3.19%] flex flex-col gap-[5.5%]">
             {milestones.map(function (item, index) {
               return (
                 <motion.div
                   key={item.year}
-                  className="flex flex-col gap-[1.06%]"
+                  className="flex flex-col gap-[4.5%]"
                   initial="hidden"
                   whileInView="show"
                   viewport={viewport}
@@ -223,7 +223,7 @@ function AboutContent() {
           href="/resume.pdf"
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute left-[24.17%] top-[60.07%] flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black transition-opacity hover:opacity-80"
+          className="absolute left-[24.17%] top-[55.5%] flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black transition-opacity hover:opacity-80"
           initial="hidden"
           whileInView="show"
           viewport={viewport}

@@ -83,7 +83,7 @@ function SkillCardBlock(props: {
   index?: number;
 }) {
   const card = props.card;
-  const extraClass = props.className ?? "border border-[#d9d9d9]";
+  const extraClass = props.className ?? "border border-[#e2e2e2]";
   const titleClass = card.lowercaseTitle
     ? "inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] lowercase tracking-[0.15em] text-black"
     : "inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] tracking-[0.15em] text-black";
@@ -104,7 +104,7 @@ function SkillCardBlock(props: {
     >
       {card.bracketCorners ? <CornerBrackets /> : null}
       <h3 className={titleClass}>{card.title}</h3>
-      <ul className="mt-[clamp(16px,1.1vw,26px)] grid grid-cols-2 gap-x-[clamp(16px,1.1vw,26px)] font-sans text-[clamp(12px,0.83vw,20px)] leading-[clamp(27px,1.86vw,43px)] tracking-[0.22em] text-[#3e3e3e]">
+      <ul className="mt-[clamp(16px,1.1vw,26px)] grid grid-cols-2 gap-x-[clamp(16px,1.1vw,26px)] pl-5 font-sans text-[clamp(12px,0.83vw,20px)] leading-[clamp(20px,1.4vw,32px)] tracking-[0.22em] text-[#3e3e3e]">
         {card.items.map(function (item) {
           return (
             <li key={item} className="list-disc marker:text-[#3e3e3e]">
@@ -176,7 +176,7 @@ function StatCard(props: { value: string; label: string; index: number }) {
 
 /**
  * Skills & Certifications — Figma frame 106:74.
- * Three-column editorial grid with shared vertical hairlines (#D9D9D9)
+ * Three-column editorial grid with shared vertical hairlines (#E2E2E2)
  * and the black stats panel with inner vertical (#6B6B6B) and horizontal
  * (#5D5D5D) rules.
  *
@@ -187,6 +187,16 @@ function StatCard(props: { value: string; label: string; index: number }) {
  * and every fixed size below is a clamp() scaled off the original 1454px
  * design reference (vw = value / 1454 * 100), floored at the original size
  * and ceilinged well above it so it keeps growing on wide screens.
+ *
+ * Column 1 / Column 2 gap fix: column 1 (skill cards) used to stop
+ * growing once its last card ended, while column 2 (the tall image)
+ * kept going — leaving the vertical divider stranded above a blank
+ * strip. A flex-1 spacer at the bottom of column 1 stretches to fill
+ * that leftover height so the border-r rides all the way down next to
+ * the image, AND that spacer now also carries a border-b so column 1
+ * gets a closing horizontal line at the bottom — matching how columns
+ * 2 and 3 are fully boxed in with a border on every side. Previously
+ * the spacer only had border-r, so the box was left open at the floor.
  *
  * Motion: the black banner slides down, skill cards stagger up one by one,
  * the big heading fades up, the hand photo fades/scales in, and the stat
@@ -226,7 +236,7 @@ export default function Skills() {
             return <SkillCardBlock key={card.title} card={card} index={index} />;
           })}
           <motion.div
-            className="border border-[#d9d9d9] px-5 py-6"
+            className="border border-[#e2e2e2] px-5 py-6"
             initial="hidden"
             whileInView="show"
             viewport={viewport}
@@ -236,20 +246,20 @@ export default function Skills() {
             <h3 className="inline-block border-b border-black pb-1 font-body text-[24px] lowercase tracking-[3.5px] text-black">
               Mobile Development
             </h3>
-            <ul className="mt-3 list-disc pl-6 font-sans text-[16px] leading-[27px] tracking-[3.5px] text-[#3e3e3e]">
+            <ul className="mt-3 list-disc pl-5 font-sans text-[16px] leading-[22px] tracking-[3.5px] text-[#3e3e3e]">
               <li>Kotlin</li>
             </ul>
             <h3 className="mt-6 inline-block border-b border-black pb-1 font-body text-[24px] tracking-[3.5px] text-black">
               database
             </h3>
-            <ul className="mt-3 list-disc pl-6 font-sans text-[16px] leading-[27px] tracking-[3.5px] text-[#3e3e3e]">
+            <ul className="mt-3 list-disc pl-5 font-sans text-[16px] leading-[22px] tracking-[3.5px] text-[#3e3e3e]">
               <li>MongoDB</li>
               <li>MySQL</li>
             </ul>
           </motion.div>
         </div>
         <motion.div
-          className="mt-8 border border-[#d9d9d9] px-4 py-10 text-center"
+          className="mt-8 border border-[#e2e2e2] px-4 py-10 text-center"
           initial="hidden"
           whileInView="show"
           viewport={viewport}
@@ -288,7 +298,7 @@ export default function Skills() {
         >
           Certifications
         </MotionLink>
-        <div className="relative mt-4 border border-[#d9d9d9] bg-black">
+        <div className="relative mt-4 border border-[#e2e2e2] bg-black">
           <span
             aria-hidden="true"
             className="pointer-events-none absolute bottom-[34px] left-[40px] top-[34px] w-px bg-[#6b6b6b]"
@@ -322,6 +332,17 @@ export default function Skills() {
           every size is a fluid clamp() so it keeps scaling on wide screens. */}
       <div className="relative mx-auto hidden w-full px-[clamp(55px,3.78vw,88px)] pb-20 pt-10 sm:block">
         <div className="relative grid grid-cols-[82fr_186fr_82fr]">
+          {/* Column 1 / Column 2 boundary line, drawn as its own absolute
+              element spanning the grid's full height directly — this
+              doesn't depend on flex/grid stretch behavior lining up with
+              however tall column 1's content happens to be, which is what
+              kept leaving a gap at the bottom when the image column grew
+              taller than column 1's cards. 82/(82+186+82) = 23.43%. */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 z-30 w-[1.5px] bg-[#e2e2e2]"
+            style={{ left: "23.43%" }}
+          />
           {/* Black banner spanning all columns */}
           <motion.div
             className="pointer-events-none absolute left-0 right-0 top-[clamp(47px,3.23vw,75px)] z-20 flex h-[clamp(86px,5.92vw,138px)] items-center justify-center bg-black px-[clamp(24px,1.65vw,38px)]"
@@ -339,20 +360,20 @@ export default function Skills() {
           </motion.div>
 
           {/* ── Column 1: skill categories ── */}
-          <div className="flex flex-col border-l border-[#d9d9d9]">
-            <div className="h-[clamp(250px,17.19vw,400px)] border-r border-t border-[#d9d9d9]" />
+          <div className="flex flex-col border-l border-r border-[#e2e2e2]">
+            <div className="h-[clamp(250px,17.19vw,400px)] border-r border-t border-[#e2e2e2]" />
             {skillCards.map(function (card, index) {
               return (
                 <SkillCardBlock
                   key={card.title}
                   card={card}
                   index={index}
-                  className="border-r border-t border-[#d9d9d9]"
+                  className="border-r border-t border-[#e2e2e2]"
                 />
               );
             })}
             <motion.div
-              className="h-[clamp(224px,15.41vw,358px)] border border-[#d9d9d9] px-[clamp(20px,1.38vw,32px)] py-[clamp(24px,1.65vw,38px)]"
+              className="h-[clamp(224px,15.41vw,358px)] border border-[#e2e2e2] px-[clamp(20px,1.38vw,32px)] py-[clamp(24px,1.65vw,38px)]"
               initial="hidden"
               whileInView="show"
               viewport={viewport}
@@ -362,24 +383,30 @@ export default function Skills() {
               <h3 className="inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] lowercase tracking-[0.15em] text-black">
                 Mobile Development
               </h3>
-              <ul className="mt-3 list-disc pl-6 font-sans text-[clamp(12px,0.83vw,20px)] leading-[clamp(27px,1.86vw,43px)] tracking-[0.22em] text-[#3e3e3e]">
+              <ul className="mt-3 list-disc pl-5 font-sans text-[clamp(12px,0.83vw,20px)] leading-[clamp(20px,1.4vw,32px)] tracking-[0.22em] text-[#3e3e3e]">
                 <li>Kotlin</li>
               </ul>
               <h3 className="mt-[clamp(32px,2.2vw,51px)] inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] tracking-[0.15em] text-black">
                 database
               </h3>
-              <ul className="mt-3 list-disc pl-6 font-sans text-[clamp(12px,0.83vw,20px)] leading-[clamp(27px,1.86vw,43px)] tracking-[0.22em] text-[#3e3e3e]">
+              <ul className="mt-3 list-disc pl-5 font-sans text-[clamp(12px,0.83vw,20px)] leading-[clamp(20px,1.4vw,32px)] tracking-[0.22em] text-[#3e3e3e]">
                 <li>MongoDB</li>
                 <li>MySQL</li>
               </ul>
             </motion.div>
+            {/* Spacer so the divider keeps running down to match the
+                image column's height instead of stopping after the last
+                card, AND closes the box off with a bottom line — this is
+                the horizontal line that was missing. border-r carries the
+                vertical divider down, border-b draws the floor. */}
+            <div className="flex-1 border-b border-r border-[#e2e2e2]" />
           </div>
 
           {/* ── Column 2: title + image + bottom cell ── */}
-          <div className="flex flex-col border-[#d9d9d9]">
-            <div className="h-[clamp(132px,9.08vw,211px)] border-r border-t border-[#d9d9d9]" />
+          <div className="flex flex-col border-[#e2e2e2]">
+            <div className="h-[clamp(132px,9.08vw,211px)] border-r border-t border-[#e2e2e2]" />
             <motion.div
-              className="flex h-[clamp(140px,9.6vw,224px)] items-center justify-center border border-[#d9d9d9] px-[clamp(24px,1.65vw,38px)] text-center"
+              className="flex h-[clamp(140px,9.6vw,224px)] items-center justify-center border border-[#e2e2e2] px-[clamp(24px,1.65vw,38px)] text-center"
               initial="hidden"
               whileInView="show"
               viewport={viewport}
@@ -393,7 +420,7 @@ export default function Skills() {
               </h2>
             </motion.div>
             <motion.div
-              className="relative min-h-[clamp(780px,54vw,1250px)] flex-1 border border-[#d9d9d9]"
+              className="relative min-h-[clamp(900px,60vw,1400px)] flex-1 border border-[#e2e2e2]"
               initial={{ opacity: 0, scale: 1.05 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={viewport}
@@ -410,9 +437,9 @@ export default function Skills() {
           </div>
 
           {/* ── Column 3: certifications + stats ── */}
-          <div className="flex flex-col border-r border-[#d9d9d9]">
-            <div className="h-[clamp(249px,17.13vw,398px)] border border-[#d9d9d9]" />
-            <div className="flex h-[clamp(224px,15.41vw,358px)] items-center justify-center border-x border-b border-[#d9d9d9]">
+          <div className="flex flex-col border-r border-[#e2e2e2]">
+            <div className="h-[clamp(249px,17.13vw,398px)] border border-[#e2e2e2]" />
+            <div className="flex h-[clamp(224px,15.41vw,358px)] items-center justify-center border-x border-b border-[#e2e2e2]">
               <MotionLink
                 href="/certifications"
                 className="flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black font-['JejuMyeongjo'] text-[clamp(13px,0.79vw,18px)] capitalize tracking-[0.03em] text-white transition-opacity hover:opacity-80"
@@ -425,7 +452,7 @@ export default function Skills() {
                 Certifications
               </MotionLink>
             </div>
-            <div className="relative flex min-h-[clamp(616px,42.37vw,986px)] flex-1 flex-col border border-[#d9d9d9] bg-black">
+            <div className="relative flex min-h-[clamp(616px,42.37vw,986px)] flex-1 flex-col border border-[#e2e2e2] bg-black">
               <span
                 aria-hidden="true"
                 className="pointer-events-none absolute bottom-[clamp(34px,2.34vw,54px)] left-[clamp(40px,2.75vw,64px)] top-[clamp(34px,2.34vw,54px)] w-px bg-[#6b6b6b]"
