@@ -221,8 +221,6 @@ function AboutContent() {
 
         <motion.a
           href="/resume.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
           className="absolute left-[24.17%] top-[55.5%] flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black transition-opacity hover:opacity-80"
           initial="hidden"
           whileInView="show"
@@ -391,8 +389,6 @@ export default function About() {
 
           <motion.a
             href="/resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
             className="inline-block rounded-tl-2xl rounded-br-2xl bg-black px-8 py-3 text-center text-[13px] font-['JejuMyeongjo'] capitalize tracking-wide text-white"
             variants={fadeUp}
             transition={revealTransition()}

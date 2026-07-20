@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { fadeUp, fadeIn, revealTransition, viewport } from "@/components/lib/motion";
 
@@ -38,8 +39,42 @@ const socialLinks = [
  * Motion: "get in touch" fades in, the left column content rises up, form
  * fields stagger in one by one, and the footer headline rises up last —
  * same shared timing/easing as every other section.
+ *
+ * Form submission: posts to /api/contact (a Next.js API route using
+ * Nodemailer) which emails the message to oshaniwijekoon28@gmail.com. See
+ * setup notes for the API route — it needs a Gmail App Password in your
+ * environment variables to actually send mail.
  */
 export default function Contact() {
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      firstName: formData.get("firstName"),
+      lastName: formData.get("lastName"),
+      email: formData.get("email"),
+      message: formData.get("message"),
+    };
+
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Request failed");
+      setStatus("success");
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
+    }
+  }
+
   return (
     <section
       id="contact"
@@ -151,6 +186,7 @@ export default function Contact() {
           {/* Right column — contact form */}
           <div className="flex flex-col justify-center px-2 lg:px-[clamp(40px,2.5vw,62px)] lg:py-[clamp(50px,3.3vw,80px)]">
             <motion.form
+              onSubmit={handleSubmit}
               className="mx-auto flex w-full max-w-[clamp(420px,27.8vw,672px)] flex-col gap-[clamp(32px,2.12vw,51px)]"
               initial="hidden"
               whileInView="show"
@@ -169,6 +205,7 @@ export default function Contact() {
                   <input
                     type="text"
                     name="firstName"
+                    required
                     className="border-b border-[#a4a4a4] bg-transparent pb-1 font-sans text-[clamp(13px,0.79vw,18px)] text-[#3e3e3e] outline-none focus:border-black"
                   />
                 </label>
@@ -195,6 +232,7 @@ export default function Contact() {
                 <input
                   type="email"
                   name="email"
+                  required
                   className="border-b border-[#a4a4a4] bg-transparent pb-1 font-sans text-[clamp(13px,0.79vw,18px)] text-[#3e3e3e] outline-none focus:border-black"
                 />
               </motion.label>
@@ -210,19 +248,32 @@ export default function Contact() {
                 <textarea
                   name="message"
                   rows={1}
+                  required
                   className="resize-none border-b border-[#a4a4a4] bg-transparent pb-1 font-sans text-[clamp(13px,0.79vw,18px)] text-[#3e3e3e] outline-none focus:border-black"
                 />
               </motion.label>
 
               <motion.button
                 type="submit"
-                className="ml-auto flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black font-body text-[clamp(13px,0.79vw,18px)] capitalize tracking-[0.03em] text-white transition-opacity hover:opacity-80"
+                disabled={status === "sending"}
+                className="ml-auto flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black font-body text-[clamp(13px,0.79vw,18px)] capitalize tracking-[0.03em] text-white transition-opacity hover:opacity-80 disabled:opacity-50"
                 variants={fadeUp}
                 transition={revealTransition()}
                 whileTap={{ scale: 0.96 }}
               >
-                send
+                {status === "sending" ? "Sending..." : "send"}
               </motion.button>
+
+              {status === "success" ? (
+                <p className="text-right font-sans text-[clamp(12px,0.85vw,16px)] text-green-700">
+                  Message sent — thank you! I&apos;ll get back to you soon.
+                </p>
+              ) : null}
+              {status === "error" ? (
+                <p className="text-right font-sans text-[clamp(12px,0.85vw,16px)] text-red-600">
+                  Something went wrong. Please try again, or email me directly.
+                </p>
+              ) : null}
             </motion.form>
           </div>
         </div>

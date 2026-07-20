@@ -12,7 +12,7 @@ const navLinks = [
 ];
 
 const bottomLinks = [
-  { href: "/resume.pdf", label: "View Resume", external: true, showArrow: true },
+  { href: "/resume.pdf", label: "View Resume", external: false, showArrow: true },
   { href: "#projects", label: "See Projects", external: false, showArrow: false },
 ];
 
