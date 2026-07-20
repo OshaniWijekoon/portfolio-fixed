@@ -143,9 +143,13 @@ export default function TorvanaCaseStudy() {
           <h2 className="font-['Joan'] text-[clamp(20px,1.6vw,32px)] capitalize leading-tight tracking-[0.1em] text-neutral-700 underline">
             Tech Stack &amp; Tools
           </h2>
-          <ul className="mt-[clamp(16px,1.6vw,32px)] flex flex-col gap-1 font-['Joan'] text-[clamp(14px,1.1vw,20px)] capitalize leading-[1.7] tracking-wider text-zinc-600">
+          <ul className="mt-[clamp(16px,1.6vw,32px)] grid grid-cols-2 gap-x-6 gap-y-1 pl-5 font-['Joan'] text-[clamp(14px,1.1vw,20px)] capitalize leading-[1.7] tracking-wider text-zinc-600">
             {techStack.map(function (item) {
-              return <li key={item}>{item}</li>;
+              return (
+                <li key={item} className="list-disc">
+                  {item}
+                </li>
+              );
             })}
           </ul>
 
