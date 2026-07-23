@@ -99,10 +99,10 @@ function ProjectCard(props: { project: Project; index: number }) {
       variants={fadeUp}
       transition={revealTransition(staggerDelay(props.index, 0.12))}
     >
-      <div className="relative h-[clamp(80px,9.4vw,225px)] bg-black">
+      <div className="relative h-[clamp(88px,10.3vw,247px)] bg-black">
         <span
           aria-hidden="true"
-          className="absolute right-[clamp(6px,0.66vw,16px)] top-[clamp(10px,0.99vw,24px)] z-10 text-[clamp(34px,3.4vw,80px)] leading-none text-white [writing-mode:vertical-rl]"
+          className="absolute right-[clamp(6px,0.66vw,16px)] top-[clamp(10px,0.99vw,24px)] z-10 text-[clamp(40px,4vw,94px)] leading-none text-white [writing-mode:vertical-rl]"
           style={{ fontFamily: '"Times New Roman", serif' }}
         >
           {project.number}
@@ -118,19 +118,19 @@ function ProjectCard(props: { project: Project; index: number }) {
         ) : null}
       </div>
 
-      <div className="h-[clamp(96px,12.16vw,294px)] bg-[#f7f7f7] px-[clamp(10px,1.19vw,29px)] py-[clamp(14px,1.85vw,45px)] text-right">
+      <div className="h-[clamp(112px,14.2vw,340px)] bg-[#f7f7f7] px-[clamp(10px,1.19vw,29px)] py-[clamp(14px,1.85vw,45px)] text-right">
         {project.description ? (
-          <p className="ml-auto max-w-[92%] font-sans text-[clamp(6px,0.73vw,18px)] leading-[1.6] tracking-[0.15em] text-[#3e3e3e]">
+          <p className="ml-auto max-w-[92%] font-sans text-[clamp(8px,0.92vw,22px)] leading-[1.6] tracking-[0.15em] text-[#3e3e3e]">
             {project.description}
           </p>
         ) : null}
 
         {project.techItems && project.techItems.length > 0 ? (
           <div className="mt-[clamp(9px,1.19vw,29px)]">
-            <p className="font-sans text-[clamp(6px,0.66vw,16px)] font-bold leading-none tracking-[0.12em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px]">
+            <p className="font-sans text-[clamp(7px,0.82vw,20px)] font-bold leading-none tracking-[0.12em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px]">
               {project.techLabel}:
             </p>
-            <ul className="mt-[clamp(5px,0.6vw,14px)] font-sans text-[clamp(6px,0.66vw,16px)] leading-[1.6] tracking-[0.15em] text-[#3e3e3e]">
+            <ul className="mt-[clamp(5px,0.6vw,14px)] font-sans text-[clamp(7px,0.82vw,20px)] leading-[1.6] tracking-[0.15em] text-[#3e3e3e]">
               {project.techItems.map(function (item) {
                 return <li key={item}>- {item}</li>;
               })}
