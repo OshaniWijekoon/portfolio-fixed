@@ -13,7 +13,6 @@ import Image from "next/image";
 export default function Perspective() {
   return (
     <section
-      id="about"
       className="relative w-full overflow-hidden bg-black"
     >
       {/* ---------- Desktop / tablet: pixel-accurate Figma layout ---------- */}
