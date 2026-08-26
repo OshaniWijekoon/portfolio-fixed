@@ -154,7 +154,7 @@ function MobileProjectCard(props: { project: Project; index: number }) {
       variants={fadeUp}
       transition={revealTransition(staggerDelay(props.index, 0.1))}
     >
-      <div className="relative flex flex-1 items-center justify-center py-[clamp(40px,2.75vw,64px)]">
+      <div className="relative flex h-[140px] items-start justify-end bg-black p-3">
         <span
           aria-hidden="true"
           className="text-[44px] leading-none text-white [writing-mode:vertical-rl]"
