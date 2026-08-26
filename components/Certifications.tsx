@@ -242,10 +242,10 @@ function CertRow({
             className="relative z-10 flex items-center justify-between gap-3 bg-black px-[clamp(14px,1.3vw,26px)] py-[clamp(12px,1.15vw,23px)]"
           >
             <div className="min-w-0">
-              <p className="font-display text-[clamp(11px,0.7vw,16px)] tracking-[0.1em] text-white">
+              <p className="font-display text-[clamp(18px,0.7vw,16px)] tracking-[0.1em] text-white">
                 {cert.title}
               </p>
-              <p className="mt-1 font-joan text-[clamp(10px,0.64vw,15px)] text-white/70">
+              <p className="mt-1 font-joan text-[clamp(16px,0.64vw,15px)] text-white/70">
                 · {cert.issuer}
               </p>
             </div>

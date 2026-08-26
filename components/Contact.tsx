@@ -12,12 +12,12 @@ const socialLinks = [
     icon: "/icon-whatsapp.svg",
   },
   {
-    href: "https://www.linkedin.com/",
+    href: "https://www.linkedin.com/in/oshani-wijekoon-81227b343",
     label: "LinkedIn",
     icon: "/icon-linkedin.svg",
   },
   {
-    href: "https://github.com/",
+    href: "https://github.com/OshaniWijekoon",
     label: "GitHub",
     icon: "/icon-github.svg",
   },
@@ -131,7 +131,7 @@ export default function Contact() {
               variants={fadeUp}
               transition={revealTransition(0.1)}
             >
-              <h2 className="font-display text-[clamp(32px,3.5vw,78px)] uppercase leading-none tracking-[-0.05em] text-black">
+              <h2 className="font-display text-[clamp(25px,3.77vw,90px)] uppercase leading-none tracking-[-0.05em] text-black">
                 Contact Me
               </h2>
               <p className="mt-6 font-joan text-[clamp(13px,0.93vw,22px)] capitalize tracking-[0.15em] text-[#3e3e3e]">

@@ -17,7 +17,7 @@ type SkillCard = {
 
 const skillCards: SkillCard[] = [
   {
-    title: "frontend",
+    title: "Frontend",
     height: "h-[clamp(224px,15.41vw,358px)]",
     bracketCorners: true,
     items: [
@@ -32,17 +32,17 @@ const skillCards: SkillCard[] = [
     ],
   },
   {
-    title: "backend",
+    title: "Backend",
     height: "h-[clamp(132px,9.08vw,211px)]",
     items: ["Express", "Spring Boot", "Node.js", "Django"],
   },
   {
-    title: "design",
+    title: "Design",
     height: "h-[clamp(132px,9.08vw,211px)]",
     items: ["Figma", "Canva", "Prototyping"],
   },
   {
-    title: "tools",
+    title: "Tools",
     height: "h-[clamp(131px,9.01vw,210px)]",
     items: ["GitHub", "Git", "AWS", "VS Code"],
   },
@@ -243,14 +243,14 @@ export default function Skills() {
             variants={fadeUp}
             transition={revealTransition(staggerDelay(skillCards.length, 0.1))}
           >
-            <h3 className="inline-block border-b border-black pb-1 font-body text-[24px] lowercase tracking-[3.5px] text-black">
+            <h3 className="inline-block border-b border-black pb-1 font-body text-[24px] tracking-[3.5px] text-black">
               Mobile Development
             </h3>
             <ul className="mt-3 list-disc pl-5 font-sans text-[16px] leading-[22px] tracking-[3.5px] text-[#3e3e3e]">
               <li>Kotlin</li>
             </ul>
             <h3 className="mt-6 inline-block border-b border-black pb-1 font-body text-[24px] tracking-[3.5px] text-black">
-              database
+              Database
             </h3>
             <ul className="mt-3 list-disc pl-5 font-sans text-[16px] leading-[22px] tracking-[3.5px] text-[#3e3e3e]">
               <li>MongoDB</li>
@@ -266,7 +266,7 @@ export default function Skills() {
           variants={fadeUp}
           transition={revealTransition()}
         >
-          <h2 className="font-display text-[36px] uppercase leading-[1.1] tracking-[-2px] text-black">
+          <h2 className="font-display text-[40px] uppercase leading-[1.1] tracking-[-2px] text-black">
             Skills &amp;
             <br />
             Certifications
@@ -380,14 +380,14 @@ export default function Skills() {
               variants={fadeUp}
               transition={revealTransition(staggerDelay(skillCards.length, 0.1))}
             >
-              <h3 className="inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] lowercase tracking-[0.15em] text-black">
+              <h3 className="inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] tracking-[0.15em] text-black">
                 Mobile Development
               </h3>
               <ul className="mt-3 list-disc pl-5 font-sans text-[clamp(12px,0.83vw,20px)] leading-[clamp(20px,1.4vw,32px)] tracking-[0.22em] text-[#3e3e3e]">
                 <li>Kotlin</li>
               </ul>
               <h3 className="mt-[clamp(32px,2.2vw,51px)] inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] tracking-[0.15em] text-black">
-                database
+                Database
               </h3>
               <ul className="mt-3 list-disc pl-5 font-sans text-[clamp(12px,0.83vw,20px)] leading-[clamp(20px,1.4vw,32px)] tracking-[0.22em] text-[#3e3e3e]">
                 <li>MongoDB</li>
@@ -442,7 +442,7 @@ export default function Skills() {
             <div className="flex h-[clamp(224px,15.41vw,358px)] items-center justify-center border-x border-b border-[#e2e2e2]">
               <MotionLink
                 href="/certifications"
-                className="flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black font-['JejuMyeongjo'] text-[clamp(13px,0.79vw,18px)] capitalize tracking-[0.03em] text-white transition-opacity hover:opacity-80"
+                className="flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black font-['JejuMyeongjo'] text-[clamp(18px,0.9vw,23px)] capitalize tracking-[0.03em] text-white transition-opacity hover:opacity-80"
                 initial="hidden"
                 whileInView="show"
                 viewport={viewport}

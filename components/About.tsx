@@ -195,12 +195,12 @@ function AboutContent() {
           <h3 className={`${headingText} font-normal uppercase text-black`}>
             Academic Journy
           </h3>
-          <div className="mt-[3.19%] flex flex-col gap-[5.5%]">
+          <div className="mt-[3.19%] flex flex-col gap-[6.5%]">
             {milestones.map(function (item, index) {
               return (
                 <motion.div
                   key={item.year}
-                  className="flex flex-col gap-[4.5%]"
+                  className="flex flex-col gap-[6.5%]"
                   initial="hidden"
                   whileInView="show"
                   viewport={viewport}
@@ -228,7 +228,7 @@ function AboutContent() {
           variants={fadeUp}
           transition={revealTransition(0.5)}
         >
-          <span className="font-['JejuMyeongjo'] text-[clamp(13px,0.79vw,18px)] capitalize tracking-[0.03em] text-white">
+          <span className="font-['JejuMyeongjo'] text-[clamp(15px,0.9vw,21px)] capitalize tracking-[0.03em] text-white">
             View Resume
           </span>
         </motion.a>
