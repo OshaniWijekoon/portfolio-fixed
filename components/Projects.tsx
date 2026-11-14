@@ -1,6 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useMotionValue,
+} from "framer-motion";
 import { fadeUp, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
 
 type Project = {
@@ -53,46 +60,81 @@ const projects: Project[] = [
 // Motion: each card fades/rises in with a staggered delay based on its
 // index, using the same shared timing as every other section.
 //
-// Card count / spacing: originally 4 cards (the 4th, ".04", was an empty
-// placeholder) sat close together with a tight 3.3% gap. When it was
-// removed, the 3 remaining cards were first stretched out to a 15.8% gap
-// to fill the row — that read as too much empty space. The gap is now
-// pulled back in to ~6.1%, and card width increased slightly (21.7% ->
-// 28.2%) to compensate, so the row still reads as evenly filled without
-// the wide gaps.
+// 3D animation (desktop cards): each card tilts in 3D as you scroll —
+// the left and right cards fan in from opposite sides, flatten out when
+// the card is in the middle of the screen, then tilt away as it leaves
+// (scroll up reverses it). Hovering a card adds a soft 3D tilt that
+// follows the mouse, plus a small lift/zoom. Tune with the constants below.
 //
-// Card sizing: the bottom text panel used to be `min-h-*`, so cards with
-// more content (e.g. card 03's 3-item tech list) grew visibly taller than
-// the others. It's now a fixed `h-*` (same clamp values) so all three
-// cards share one uniform height regardless of content length, matching
-// the already-uniform width.
-//
-// Number / title spacing in the black panel: the number was top-anchored
-// and the title bottom-anchored inside a fairly tall black box, so the
-// wider cards left a long empty gap between them. The black box height is
-// now scaled down (~25% shorter, clamp(106,12.56vw,300) ->
-// clamp(80,9.4vw,225)) so the top-anchored number and bottom-anchored
-// title sit closer together, without needing to guess each title's
-// wrapped-line height. The number's own font size is scaled up to match
-// (clamp(26,2.6vw,62) -> clamp(34,3.4vw,80)) roughly proportional to how
-// much wider the cards got when the 4th card was removed.
-//
-// Text spacing: description/tech-list tracking and line-height were quite
-// wide (tracking-[0.29em]/[0.24em], leading-[2]/[1.9]), which is part of
-// what made the text panel feel oversized. Tightened to tracking-[0.15em]
-// and leading-[1.6] throughout so the copy sits more compactly.
-//
-// Mobile: the desktop layout below is absolutely-positioned 3-up grid that
-// only works down to a certain width. Below `sm` it's replaced entirely by
-// a simple full-width stacked list (MobileProjectCard) with fixed, legible
-// font sizes instead of the vw-scaled desktop values — left untouched.
+// Card sizing: all three cards share one uniform height/width regardless
+// of content length. Mobile is a simple full-width stacked list
+// (MobileProjectCard) with fixed, legible font sizes — left untouched.
+
+// ---- 3D settings -------------------------------------------------------
+const PERSPECTIVE = 1000; // px — lower = more dramatic 3D
+const SCROLL_TILT_X = [16, 0, -8]; // rotateX degrees (enter, middle, leave)
+const SCROLL_TILT_Y = 10; // rotateY degrees, fans out left/right cards
+const MOUSE_TILT = 8; // degrees of tilt following the mouse
+const HOVER_SCALE = 1.03;
+const tiltSpring = { stiffness: 120, damping: 22, mass: 0.4 };
 
 function ProjectCard(props: { project: Project; index: number }) {
   const project = props.project;
+  const ref = useRef<HTMLElement>(null);
+
+  // -1 for the left card, 0 for the middle, 1 for the right card
+  const side = props.index - 1;
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+
+  const scrollRotateX = useTransform(scrollYProgress, [0, 0.5, 1], SCROLL_TILT_X);
+  const scrollRotateY = useTransform(
+    scrollYProgress,
+    [0, 0.5, 1],
+    [side * SCROLL_TILT_Y, 0, side * -SCROLL_TILT_Y * 0.6]
+  );
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const smoothMouseX = useSpring(mouseX, tiltSpring);
+  const smoothMouseY = useSpring(mouseY, tiltSpring);
+
+  const rotateX = useSpring(
+    useTransform([scrollRotateX, smoothMouseY], (v: number[]) => v[0] - v[1] * MOUSE_TILT * 2),
+    tiltSpring
+  );
+  const rotateY = useSpring(
+    useTransform([scrollRotateY, smoothMouseX], (v: number[]) => v[0] + v[1] * MOUSE_TILT * 2),
+    tiltSpring
+  );
+
+  function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+  }
+
+  function handleMouseLeave() {
+    mouseX.set(0);
+    mouseY.set(0);
+  }
 
   return (
     <motion.article
-      className={"absolute " + project.className}
+      ref={ref}
+      className={"absolute will-change-transform " + project.className}
+      style={{
+        rotateX,
+        rotateY,
+        transformPerspective: PERSPECTIVE,
+        transformStyle: "preserve-3d",
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      whileHover={{ scale: HOVER_SCALE }}
       initial="hidden"
       whileInView="show"
       viewport={viewport}

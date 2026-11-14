@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { fadeUp, scaleIn, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
 
 const MotionLink = motion.create(Link);
@@ -74,6 +75,40 @@ function CornerBrackets() {
         className="pointer-events-none absolute bottom-[4px] right-[4px] h-[10px] w-[10px] border-b border-r border-black"
       />
     </>
+  );
+}
+
+/**
+ * Scroll-linked zoom. Scrolling down zooms the image in, scrolling up
+ * zooms it back out. overflow-hidden keeps it inside its frame.
+ */
+function ScrollZoomImage() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+
+  // 0 = image just entering at the bottom of the screen, 1 = leaving at the top
+  // Scroll down -> progress goes up -> scale goes 1 -> 1.4 (zoom in)
+  // Scroll up   -> progress goes down -> scale goes 1.4 -> 1 (zoom out)
+  const rawScale = useTransform(scrollYProgress, [0, 1], [1, 1.4]);
+  const scale = useSpring(rawScale, { stiffness: 120, damping: 24, mass: 0.4 });
+
+  return (
+    <div ref={ref} className="absolute inset-0 overflow-hidden">
+      <motion.div className="absolute inset-0 will-change-transform" style={{ scale }}>
+        <Image
+          src="/image_20261113002157.jpg"
+          alt="First view preview"
+          fill
+          className="object-cover object-top"
+          sizes="(min-width: 640px) 51vw, 744px"
+          unoptimized
+        />
+      </motion.div>
+    </div>
   );
 }
 
@@ -201,15 +236,16 @@ function StatCard(props: { value: string; label: string; index: number }) {
  * Motion: the black banner slides down, skill cards stagger up one by one,
  * the big heading fades up, the hand photo fades/scales in, and the stat
  * cards pop in with a stagger — all using the same shared timing as the
- * rest of the site.
+ * rest of the site. The hand photo is also scroll-linked: scrolling down
+ * zooms it in, scrolling up zooms it back out (ScrollZoomImage).
  *
  * The "Certifications" button navigates to the separate /certifications
  * route (Next.js Link wrapped in motion via MotionLink) rather than
  * anchor-scrolling, since Certifications now lives on its own page. Its
  * size now matches the smaller "View Resume" button style used on About.
  *
- * Hand image is served from /webh.png (top-level public/ folder), and is
- * sized larger than before to match the reference layout.
+ * Hand image is served from /image_20261113002157.jpg (top-level public/
+ * folder), and is sized larger than before to match the reference layout.
  */
 export default function Skills() {
   return (
@@ -426,13 +462,7 @@ export default function Skills() {
               viewport={viewport}
               transition={revealTransition(0.2)}
             >
-              <Image
-                src="/webh.png"
-                alt=""
-                fill
-                className="object-cover object-top"
-                sizes="(min-width: 640px) 51vw, 744px"
-              />
+              <ScrollZoomImage />
             </motion.div>
           </div>
 

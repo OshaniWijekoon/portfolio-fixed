@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { fadeUp, fadeIn, revealTransition, viewport } from "@/components/lib/motion";
 
 const socialLinks = [
@@ -23,6 +23,15 @@ const socialLinks = [
   },
 ];
 
+// Scroll zoom for the background image only:
+// scrolling down zooms the image IN, scrolling up zooms it back OUT.
+const MAX_SCALE = 1.15; // 1 = no zoom — raise for a stronger zoom
+
+// Footer headline zoom: "Let's Work Together." zooms IN as you scroll down
+// to it (and back out when you scroll up). Starts at HEADLINE_MIN_SCALE and
+// reaches full size (1) once the headline is centered on the screen.
+const HEADLINE_MIN_SCALE = 0.6; // 1 = no zoom
+
 /**
  * Contact section — Figma node 181:18. Two-column layout with a
  * horizontal "get in touch" rule, underline-style form fields, and
@@ -38,7 +47,8 @@ const socialLinks = [
  *
  * Motion: "get in touch" fades in, the left column content rises up, form
  * fields stagger in one by one, and the footer headline rises up last —
- * same shared timing/easing as every other section.
+ * same shared timing/easing as every other section. The left background
+ * image also has a scroll-linked zoom (down = zoom in, up = zoom out).
  *
  * Form submission: posts to /api/contact (a Next.js API route using
  * Nodemailer) which emails the message to oshaniwijekoon28@gmail.com. See
@@ -47,6 +57,26 @@ const socialLinks = [
  */
 export default function Contact() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+
+  // Scroll-linked zoom for the background image
+  const bgRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: bgRef,
+    offset: ["start end", "end start"],
+  });
+  const rawScale = useTransform(scrollYProgress, [0, 1], [1, MAX_SCALE]);
+  const bgScale = useSpring(rawScale, { stiffness: 120, damping: 24, mass: 0.4 });
+
+  // Scroll-linked zoom for the footer headline
+  const headlineRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: headlineProgress } = useScroll({
+    target: headlineRef,
+    offset: ["start end", "center center"],
+  });
+  const headlineScale = useSpring(
+    useTransform(headlineProgress, [0, 1], [HEADLINE_MIN_SCALE, 1]),
+    { stiffness: 120, damping: 24, mass: 0.4 }
+  );
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -107,6 +137,7 @@ export default function Contact() {
           {/* Left column — heading, location, contact details */}
           <div className="relative flex min-h-[480px] flex-col px-2 pb-10 lg:min-h-[clamp(480px,47.6vw,1150px)] lg:px-[clamp(40px,2.5vw,62px)] lg:pb-[clamp(50px,3.3vw,80px)] lg:pt-[clamp(32px,2.1vw,51px)]">
             <motion.div
+              ref={bgRef}
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 overflow-hidden opacity-60 grayscale"
               initial={{ opacity: 0 }}
@@ -114,13 +145,19 @@ export default function Contact() {
               viewport={viewport}
               transition={revealTransition()}
             >
-              <Image
-                src="/contact-bg.jpg"
-                alt=""
-                fill
-                className="object-cover object-center"
-                sizes="(min-width: 1024px) 49vw, 100vw"
-              />
+              {/* Zoom layer — only the image scales, the frame stays put */}
+              <motion.div
+                className="absolute inset-0 will-change-transform"
+                style={{ scale: bgScale, transformOrigin: "center center" }}
+              >
+                <Image
+                  src="/contact-bg.jpg"
+                  alt=""
+                  fill
+                  className="object-cover object-center"
+                  sizes="(min-width: 1024px) 49vw, 100vw"
+                />
+              </motion.div>
             </motion.div>
 
             <motion.div
@@ -283,20 +320,26 @@ export default function Contact() {
           + copyright credit line underneath. */}
       <div className="flex min-h-[340px] flex-col items-center justify-center gap-[clamp(32px,2.1vw,51px)] bg-black px-6 pb-[clamp(32px,2.1vw,51px)] pt-[clamp(50px,3.3vw,80px)] text-center lg:min-h-[clamp(340px,29.6vw,720px)] lg:pb-[clamp(44px,2.9vw,72px)]">
         <div className="relative">
-          <motion.h2
-            className="font-display text-[clamp(40px,7.2vw,112px)] uppercase leading-[1.1] tracking-[-0.03em] text-white"
-            initial="hidden"
-            whileInView="show"
-            viewport={viewport}
-            variants={fadeUp}
-            transition={revealTransition()}
+          <motion.div
+            ref={headlineRef}
+            className="will-change-transform"
+            style={{ scale: headlineScale, transformOrigin: "center center" }}
           >
-            Let&apos;s
-            <br />
-            Work
-            <br />
-            Together.
-          </motion.h2>
+            <motion.h2
+              className="font-display text-[clamp(40px,7.2vw,112px)] uppercase leading-[1.1] tracking-[-0.03em] text-white"
+              initial="hidden"
+              whileInView="show"
+              viewport={viewport}
+              variants={fadeUp}
+              transition={revealTransition()}
+            >
+              Let&apos;s
+              <br />
+              Work
+              <br />
+              Together.
+            </motion.h2>
+          </motion.div>
           <motion.span
             aria-hidden="true"
             className="absolute left-1/2 top-[33%] h-px w-[92vw] max-w-[1800px] bg-white/30"

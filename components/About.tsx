@@ -14,6 +14,12 @@ type Milestone = {
   description: string;
 };
 
+type Experience = {
+  role: string;
+  period: string;
+  company: string;
+};
+
 const focusAreas: FocusArea[] = [
   {
     title: "UI/UX Design",
@@ -46,6 +52,14 @@ const milestones: Milestone[] = [
     year: "3rd year - 2026",
     description:
       "Focused on UI/UX design, web development, and software engineering through academic and personal projects. Gained hands-on experience with modern technologies and user-centered design practices.",
+  },
+];
+
+const experiences: Experience[] = [
+  {
+    role: "UI/UX Intern",
+    period: "Present",
+    company: "NextGen CodeX PVT LTD",
   },
 ];
 
@@ -219,9 +233,48 @@ function AboutContent() {
           </div>
         </motion.div>
 
+        {/* Experience — sits right after Academic Journey. */}
+        <motion.div
+          className="absolute left-[24.17%] top-[55.5%] w-[66.8%]"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          transition={revealTransition(0.15)}
+        >
+          <h3 className={`${headingText} font-normal uppercase text-black`}>
+            Experience
+          </h3>
+          <div className="mt-[3%] flex items-stretch gap-[2.64%]">
+            <span aria-hidden="true" className="w-px bg-gray-200" />
+            <div className="flex flex-1 flex-col gap-[6.33%]">
+              {experiences.map(function (item, index) {
+                return (
+                  <motion.div
+                    key={item.role + item.company}
+                    className="flex flex-col gap-[1.06%]"
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={viewport}
+                    variants={fadeUp}
+                    transition={revealTransition(staggerDelay(index, 0.1, 0.2))}
+                  >
+                    <h4
+                      className={`${subheadingText} inline-block font-normal text-black underline underline-offset-[3px]`}
+                    >
+                      {item.role} - {item.period}
+                    </h4>
+                    <p className={bodyText}>{item.company}</p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </motion.div>
+
         <motion.a
           href="/resume.pdf"
-          className="absolute left-[24.17%] top-[55.5%] flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black transition-opacity hover:opacity-80"
+          className="absolute left-[24.17%] top-[68%] flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black transition-opacity hover:opacity-80"
           initial="hidden"
           whileInView="show"
           viewport={viewport}
@@ -380,6 +433,26 @@ export default function About() {
                     </h4>
                     <p className="mt-1 text-[13px] font-['Instrument_Sans'] capitalize leading-[1.7] tracking-wide text-zinc-600">
                       {item.description}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          <motion.div variants={fadeUp} transition={revealTransition()}>
+            <h3 className="text-[18px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black">
+              Experience
+            </h3>
+            <div className="mt-5 flex flex-col gap-5">
+              {experiences.map(function (item) {
+                return (
+                  <div key={item.role + item.company}>
+                    <h4 className="inline-block text-[14px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black underline underline-offset-[3px]">
+                      {item.role} - {item.period}
+                    </h4>
+                    <p className="mt-1 text-[13px] font-['Instrument_Sans'] capitalize leading-[1.7] tracking-wide text-zinc-600">
+                      {item.company}
                     </p>
                   </div>
                 );
