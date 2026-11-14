@@ -1,9 +1,75 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import { fadeUp, scaleIn, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
+
+const frameImages = [
+  "/frames/frame_001.jpg",
+  "/frames/frame_002.jpg",
+  "/frames/frame_003.jpg",
+  "/frames/frame_004.jpg",
+  "/frames/frame_005.jpg",
+  "/frames/frame_006.jpg",
+  "/frames/frame_007.jpg",
+  "/frames/frame_008.jpg",
+  "/frames/frame_009.jpg",
+  "/frames/frame_010.jpg",
+  "/frames/frame_011.jpg",
+  "/frames/frame_012.jpg",
+  "/frames/frame_013.jpg",
+  "/frames/frame_014.jpg",
+  "/frames/frame_015.jpg",
+  "/frames/frame_016.jpg",
+  "/frames/frame_017.jpg",
+  "/frames/frame_018.jpg",
+  "/frames/frame_019.jpg",
+  "/frames/frame_020.jpg",
+  "/frames/frame_021.jpg",
+  "/frames/frame_022.jpg",
+  "/frames/frame_023.jpg",
+  "/frames/frame_024.jpg",
+  "/frames/frame_025.jpg",
+  "/frames/frame_026.jpg",
+  "/frames/frame_027.jpg",
+  "/frames/frame_028.jpg",
+  "/frames/frame_029.jpg",
+  "/frames/frame_030.jpg",
+  "/frames/frame_031.jpg",
+  "/frames/frame_032.jpg",
+  "/frames/frame_033.jpg",
+  "/frames/frame_034.jpg",
+  "/frames/frame_035.jpg",
+  "/frames/frame_036.jpg",
+  "/frames/frame_037.jpg",
+  "/frames/frame_038.jpg",
+  "/frames/frame_039.jpg",
+  "/frames/frame_040.jpg",
+  "/frames/frame_041.jpg",
+  "/frames/frame_042.jpg",
+  "/frames/frame_043.jpg",
+  "/frames/frame_044.jpg",
+  "/frames/frame_045.jpg",
+  "/frames/frame_046.jpg",
+  "/frames/frame_047.jpg",
+  "/frames/frame_048.jpg",
+  "/frames/frame_049.jpg",
+  "/frames/frame_050.jpg",
+  "/frames/frame_051.jpg",
+  "/frames/frame_052.jpg",
+  "/frames/frame_053.jpg",
+  "/frames/frame_054.jpg",
+  "/frames/frame_055.jpg",
+  "/frames/frame_056.jpg",
+  "/frames/frame_057.jpg",
+  "/frames/frame_058.jpg",
+  "/frames/frame_059.jpg",
+  "/frames/frame_060.jpg",
+];
+
+// Slightly slower than the first version (10 -> 13)
+const PIXELS_PER_FRAME = 13;
 
 const navLinks = [
   { href: "#about", label: "About" },
@@ -35,89 +101,75 @@ function ArrowUpRightIcon() {
   );
 }
 
-// 3D scroll + mouse animation for the hero image.
-// Scroll down: image zooms in and tilts back in 3D (rotateX / rotateY).
-// Scroll up: it reverses. Moving the mouse adds a soft 3D parallax tilt.
-const MAX_SCALE = 1.25; // extra zoom hides the edges while the image is tilted
-const SCROLL_TILT_X = 10; // degrees
-const SCROLL_TILT_Y = -8; // degrees
-const MOUSE_TILT = 6; // degrees
-const PERSPECTIVE = 1200; // px — lower = more dramatic 3D
-
-const spring = { stiffness: 110, damping: 22, mass: 0.4 };
-
 export default function Hero() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const [currentFrame, setCurrentFrame] = useState(0);
+  const [baseFolder, setBaseFolder] = useState("/frames");
+  const virtualScrollRef = useRef(0);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
-  });
+  useEffect(function () {
+    const folders = ["/frames", "/images", "/images(frames)", ""];
+    folders.forEach(function (folder) {
+      const testImg = new window.Image();
+      testImg.onload = function () {
+        setBaseFolder(folder);
+        for (let i = 1; i <= 60; i++) {
+          const preloadImg = new window.Image();
+          preloadImg.src = `${folder}/frame_${String(i).padStart(3, "0")}.jpg`;
+        }
+      };
+      testImg.src = `${folder}/frame_001.jpg`;
+    });
 
-  // scroll-linked values
-  const scale = useSpring(useTransform(scrollYProgress, [0, 1], [1, MAX_SCALE]), spring);
-  const scrollX = useTransform(scrollYProgress, [0, 1], [0, SCROLL_TILT_X]);
-  const scrollY = useTransform(scrollYProgress, [0, 1], [0, SCROLL_TILT_Y]);
+    function updateFromScroll() {
+      const scrollTop = window.scrollY;
+      virtualScrollRef.current = scrollTop;
+      const frameIndex =
+        ((Math.floor(scrollTop / PIXELS_PER_FRAME) % frameImages.length) +
+          frameImages.length) %
+        frameImages.length;
+      setCurrentFrame(frameIndex);
+    }
 
-  // mouse-linked values (-0.5 .. 0.5)
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const smoothMouseX = useSpring(mouseX, spring);
-  const smoothMouseY = useSpring(mouseY, spring);
+    function handleWheel(e: WheelEvent) {
+      virtualScrollRef.current = Math.max(
+        0,
+        virtualScrollRef.current + e.deltaY * 0.45
+      );
+      const frameIndex =
+        ((Math.floor(virtualScrollRef.current / PIXELS_PER_FRAME) %
+          frameImages.length) +
+          frameImages.length) %
+        frameImages.length;
+      setCurrentFrame(frameIndex);
+    }
 
-  // combine scroll + mouse into the final 3D rotation
-  const rotateX = useSpring(
-    useTransform([scrollX, smoothMouseY], (v: number[]) => v[0] - v[1] * MOUSE_TILT * 2),
-    spring
-  );
-  const rotateY = useSpring(
-    useTransform([scrollY, smoothMouseX], (v: number[]) => v[0] + v[1] * MOUSE_TILT * 2),
-    spring
-  );
+    window.addEventListener("scroll", updateFromScroll, { passive: true });
+    window.addEventListener("wheel", handleWheel, { passive: true });
+    updateFromScroll();
 
-  function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
-    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
-  }
+    return function () {
+      window.removeEventListener("scroll", updateFromScroll);
+      window.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
 
-  function handleMouseLeave() {
-    mouseX.set(0);
-    mouseY.set(0);
-  }
+  const currentFrameSrc = `${baseFolder}/frame_${String(currentFrame + 1).padStart(3, "0")}.jpg`;
 
   return (
     <section
-      ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       id="home"
       className="relative flex aspect-[3/4] w-full flex-col overflow-hidden bg-[#f4f4f2] sm:aspect-auto sm:h-screen"
     >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{ perspective: PERSPECTIVE }}
-      >
-        <motion.div
-          className="absolute inset-0 will-change-transform"
-          style={{
-            scale,
-            rotateX,
-            rotateY,
-            transformOrigin: "center center",
-            transformStyle: "preserve-3d",
-          }}
-        >
-          <Image
-            src="/hero.jpg"
-            alt=""
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-          />
-        </motion.div>
+      <div aria-hidden="true" className="absolute inset-0">
+        <Image
+          src={currentFrameSrc}
+          alt=""
+          fill
+          priority
+          unoptimized
+          className="object-cover object-center"
+          sizes="100vw"
+        />
       </div>
 
       <nav className="relative z-20 flex flex-wrap items-center gap-[clamp(20px,1.85vw,44px)] px-[clamp(24px,2.65vw,64px)] pt-[clamp(24px,2.65vw,64px)]">

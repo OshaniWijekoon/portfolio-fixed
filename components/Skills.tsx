@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { fadeUp, scaleIn, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
 
@@ -80,10 +80,32 @@ function CornerBrackets() {
 
 /**
  * Scroll-linked zoom. Scrolling down zooms the image in, scrolling up
- * zooms it back out. overflow-hidden keeps it inside its frame.
+ * zooms it back out. Anchored to bottom-left with object-contain so the
+ * transparent hand PNG fits cleanly without cutting off the fingers or sleeve.
  */
 function ScrollZoomImage() {
   const ref = useRef<HTMLDivElement>(null);
+  const [imgSrc, setImgSrc] = useState("/webh.png");
+
+  useEffect(function () {
+    const candidates = [
+      "/webh.png",
+      "/hand.png",
+      "/image_20261113002157.png",
+      "/image_20261113002157.jpg",
+    ];
+    let matched = false;
+    candidates.forEach(function (src) {
+      const testImg = new window.Image();
+      testImg.onload = function () {
+        if (!matched) {
+          matched = true;
+          setImgSrc(src);
+        }
+      };
+      testImg.src = src;
+    });
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -91,19 +113,22 @@ function ScrollZoomImage() {
   });
 
   // 0 = image just entering at the bottom of the screen, 1 = leaving at the top
-  // Scroll down -> progress goes up -> scale goes 1 -> 1.4 (zoom in)
-  // Scroll up   -> progress goes down -> scale goes 1.4 -> 1 (zoom out)
-  const rawScale = useTransform(scrollYProgress, [0, 1], [1, 1.4]);
+  // Scroll down -> progress goes up -> scale goes 1 -> 1.15 (smooth zoom in without clipping)
+  // Scroll up   -> progress goes down -> scale goes 1.15 -> 1 (zoom out)
+  const rawScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const scale = useSpring(rawScale, { stiffness: 120, damping: 24, mass: 0.4 });
 
   return (
     <div ref={ref} className="absolute inset-0 overflow-hidden">
-      <motion.div className="absolute inset-0 will-change-transform" style={{ scale }}>
+      <motion.div
+        className="absolute inset-0 origin-bottom-left will-change-transform"
+        style={{ scale }}
+      >
         <Image
-          src="/image_20261113002157.jpg"
+          src={imgSrc}
           alt="First view preview"
           fill
-          className="object-cover object-top"
+          className="object-contain object-left-bottom"
           sizes="(min-width: 640px) 51vw, 744px"
           unoptimized
         />
@@ -161,10 +186,6 @@ function StatCard(props: { value: string; label: string; index: number }) {
 
   return (
     <div className="relative flex flex-1 items-center justify-center py-[clamp(40px,2.75vw,64px)]">
-      {/* Motion is applied to this wrapper (scale + fade "pop in"), while
-          the rotation stays a static Tailwind class on the inner frames
-          below — keeps the settled tilt intact without fighting framer's
-          own transform. */}
       <motion.div
         className="relative h-[clamp(98px,6.74vw,157px)] w-[clamp(105px,7.22vw,168px)]"
         initial="hidden"
@@ -209,49 +230,10 @@ function StatCard(props: { value: string; label: string; index: number }) {
   );
 }
 
-/**
- * Skills & Certifications — Figma frame 106:74.
- * Three-column editorial grid with shared vertical hairlines (#E2E2E2)
- * and the black stats panel with inner vertical (#6B6B6B) and horizontal
- * (#5D5D5D) rules.
- *
- * Sizing note: the desktop grid used to be capped at max-w-[1454px] with
- * fixed px sizes throughout, so on any screen wider than that it stopped
- * growing — same issue fixed on the About/Projects sections. The cap is
- * removed, grid columns use `fr` units so they scale with the container,
- * and every fixed size below is a clamp() scaled off the original 1454px
- * design reference (vw = value / 1454 * 100), floored at the original size
- * and ceilinged well above it so it keeps growing on wide screens.
- *
- * Column 1 / Column 2 gap fix: column 1 (skill cards) used to stop
- * growing once its last card ended, while column 2 (the tall image)
- * kept going — leaving the vertical divider stranded above a blank
- * strip. A flex-1 spacer at the bottom of column 1 stretches to fill
- * that leftover height so the border-r rides all the way down next to
- * the image, AND that spacer now also carries a border-b so column 1
- * gets a closing horizontal line at the bottom — matching how columns
- * 2 and 3 are fully boxed in with a border on every side. Previously
- * the spacer only had border-r, so the box was left open at the floor.
- *
- * Motion: the black banner slides down, skill cards stagger up one by one,
- * the big heading fades up, the hand photo fades/scales in, and the stat
- * cards pop in with a stagger — all using the same shared timing as the
- * rest of the site. The hand photo is also scroll-linked: scrolling down
- * zooms it in, scrolling up zooms it back out (ScrollZoomImage).
- *
- * The "Certifications" button navigates to the separate /certifications
- * route (Next.js Link wrapped in motion via MotionLink) rather than
- * anchor-scrolling, since Certifications now lives on its own page. Its
- * size now matches the smaller "View Resume" button style used on About.
- *
- * Hand image is served from /image_20261113002157.jpg (top-level public/
- * folder), and is sized larger than before to match the reference layout.
- */
 export default function Skills() {
   return (
     <section id="skills" className="relative w-full bg-[#f0f0ee]">
-      {/* Mobile layout — unchanged structurally, this is a fixed
-          small-viewport layout shown only below the sm breakpoint. */}
+      {/* Mobile layout */}
       <div className="px-6 py-16 sm:hidden">
         <motion.div
           className="bg-black px-4 py-5 text-center"
@@ -320,7 +302,8 @@ export default function Skills() {
             src="/webh.png"
             alt=""
             fill
-            className="object-cover object-center"
+            className="object-contain object-left-bottom"
+            unoptimized
           />
         </motion.div>
         <MotionLink
@@ -364,16 +347,9 @@ export default function Skills() {
         </div>
       </div>
 
-      {/* Desktop: Figma grid — no more max-w cap; columns use fr units and
-          every size is a fluid clamp() so it keeps scaling on wide screens. */}
+      {/* Desktop: Figma grid */}
       <div className="relative mx-auto hidden w-full px-[clamp(55px,3.78vw,88px)] pb-20 pt-10 sm:block">
         <div className="relative grid grid-cols-[82fr_186fr_82fr]">
-          {/* Column 1 / Column 2 boundary line, drawn as its own absolute
-              element spanning the grid's full height directly — this
-              doesn't depend on flex/grid stretch behavior lining up with
-              however tall column 1's content happens to be, which is what
-              kept leaving a gap at the bottom when the image column grew
-              taller than column 1's cards. 82/(82+186+82) = 23.43%. */}
           <span
             aria-hidden="true"
             className="pointer-events-none absolute inset-y-0 z-30 w-[1.5px] bg-[#e2e2e2]"
@@ -430,11 +406,6 @@ export default function Skills() {
                 <li>MySQL</li>
               </ul>
             </motion.div>
-            {/* Spacer so the divider keeps running down to match the
-                image column's height instead of stopping after the last
-                card, AND closes the box off with a bottom line — this is
-                the horizontal line that was missing. border-r carries the
-                vertical divider down, border-b draws the floor. */}
             <div className="flex-1 border-b border-r border-[#e2e2e2]" />
           </div>
 
