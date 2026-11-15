@@ -6,70 +6,78 @@ import { motion } from "framer-motion";
 import { fadeUp, scaleIn, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
 
 const frameImages = [
-  "/frames/frame_001.jpg",
-  "/frames/frame_002.jpg",
-  "/frames/frame_003.jpg",
-  "/frames/frame_004.jpg",
-  "/frames/frame_005.jpg",
-  "/frames/frame_006.jpg",
-  "/frames/frame_007.jpg",
-  "/frames/frame_008.jpg",
-  "/frames/frame_009.jpg",
-  "/frames/frame_010.jpg",
-  "/frames/frame_011.jpg",
-  "/frames/frame_012.jpg",
-  "/frames/frame_013.jpg",
-  "/frames/frame_014.jpg",
-  "/frames/frame_015.jpg",
-  "/frames/frame_016.jpg",
-  "/frames/frame_017.jpg",
-  "/frames/frame_018.jpg",
-  "/frames/frame_019.jpg",
-  "/frames/frame_020.jpg",
-  "/frames/frame_021.jpg",
-  "/frames/frame_022.jpg",
-  "/frames/frame_023.jpg",
-  "/frames/frame_024.jpg",
-  "/frames/frame_025.jpg",
-  "/frames/frame_026.jpg",
-  "/frames/frame_027.jpg",
-  "/frames/frame_028.jpg",
-  "/frames/frame_029.jpg",
-  "/frames/frame_030.jpg",
-  "/frames/frame_031.jpg",
-  "/frames/frame_032.jpg",
-  "/frames/frame_033.jpg",
-  "/frames/frame_034.jpg",
-  "/frames/frame_035.jpg",
-  "/frames/frame_036.jpg",
-  "/frames/frame_037.jpg",
-  "/frames/frame_038.jpg",
-  "/frames/frame_039.jpg",
-  "/frames/frame_040.jpg",
-  "/frames/frame_041.jpg",
-  "/frames/frame_042.jpg",
-  "/frames/frame_043.jpg",
-  "/frames/frame_044.jpg",
-  "/frames/frame_045.jpg",
-  "/frames/frame_046.jpg",
-  "/frames/frame_047.jpg",
-  "/frames/frame_048.jpg",
-  "/frames/frame_049.jpg",
-  "/frames/frame_050.jpg",
-  "/frames/frame_051.jpg",
-  "/frames/frame_052.jpg",
-  "/frames/frame_053.jpg",
-  "/frames/frame_054.jpg",
-  "/frames/frame_055.jpg",
-  "/frames/frame_056.jpg",
-  "/frames/frame_057.jpg",
-  "/frames/frame_058.jpg",
-  "/frames/frame_059.jpg",
-  "/frames/frame_060.jpg",
+  "/frame_001.webp",
+  "/frame_002.webp",
+  "/frame_003.webp",
+  "/frame_004.webp",
+  "/frame_005.webp",
+  "/frame_006.webp",
+  "/frame_007.webp",
+  "/frame_008.webp",
+  "/frame_009.webp",
+  "/frame_010.webp",
+  "/frame_011.webp",
+  "/frame_012.webp",
+  "/frame_013.webp",
+  "/frame_014.webp",
+  "/frame_015.webp",
+  "/frame_016.webp",
+  "/frame_017.webp",
+  "/frame_018.webp",
+  "/frame_019.webp",
+  "/frame_020.webp",
+  "/frame_021.webp",
+  "/frame_022.webp",
+  "/frame_023.webp",
+  "/frame_024.webp",
+  "/frame_025.webp",
+  "/frame_026.webp",
+  "/frame_027.webp",
+  "/frame_028.webp",
+  "/frame_029.webp",
+  "/frame_030.webp",
+  "/frame_031.webp",
+  "/frame_032.webp",
+  "/frame_033.webp",
+  "/frame_034.webp",
+  "/frame_035.webp",
+  "/frame_036.webp",
+  "/frame_037.webp",
+  "/frame_038.webp",
+  "/frame_039.webp",
+  "/frame_040.webp",
+  "/frame_041.webp",
+  "/frame_042.webp",
+  "/frame_043.webp",
+  "/frame_044.webp",
+  "/frame_045.webp",
+  "/frame_046.webp",
+  "/frame_047.webp",
+  "/frame_048.webp",
+  "/frame_049.webp",
+  "/frame_050.webp",
+  "/frame_051.webp",
+  "/frame_052.webp",
+  "/frame_053.webp",
+  "/frame_054.webp",
+  "/frame_055.webp",
+  "/frame_056.webp",
+  "/frame_057.webp",
+  "/frame_058.webp",
+  "/frame_059.webp",
+  "/frame_060.webp",
 ];
 
 // Slightly slower than the first version (10 -> 13)
 const PIXELS_PER_FRAME = 13;
+
+// Frame sharpening (makes the stretched frames look crisper).
+// Set SHARPEN to false to turn it off. SHARPEN_AMOUNT: 0.3 = soft, 0.6 = strong.
+const SHARPEN = true;
+const SHARPEN_AMOUNT = 0.45;
+const SHARPEN_KERNEL =
+  "0 -" + SHARPEN_AMOUNT + " 0 -" + SHARPEN_AMOUNT + " " + (1 + 4 * SHARPEN_AMOUNT) +
+  " -" + SHARPEN_AMOUNT + " 0 -" + SHARPEN_AMOUNT + " 0";
 
 const navLinks = [
   { href: "#about", label: "About" },
@@ -103,21 +111,21 @@ function ArrowUpRightIcon() {
 
 export default function Hero() {
   const [currentFrame, setCurrentFrame] = useState(0);
-  const [baseFolder, setBaseFolder] = useState("/frames");
+  const [baseFolder, setBaseFolder] = useState("");
   const virtualScrollRef = useRef(0);
 
   useEffect(function () {
-    const folders = ["/frames", "/images", "/images(frames)", ""];
+    const folders = ["", "/frames", "/images", "/images(frames)"];
     folders.forEach(function (folder) {
       const testImg = new window.Image();
       testImg.onload = function () {
         setBaseFolder(folder);
-        for (let i = 1; i <= 60; i++) {
+        for (let i = 1; i <= frameImages.length; i++) {
           const preloadImg = new window.Image();
-          preloadImg.src = `${folder}/frame_${String(i).padStart(3, "0")}.jpg`;
+          preloadImg.src = `${folder}/frame_${String(i).padStart(3, "0")}.webp`;
         }
       };
-      testImg.src = `${folder}/frame_001.jpg`;
+      testImg.src = `${folder}/frame_001.webp`;
     });
 
     function updateFromScroll() {
@@ -153,7 +161,7 @@ export default function Hero() {
     };
   }, []);
 
-  const currentFrameSrc = `${baseFolder}/frame_${String(currentFrame + 1).padStart(3, "0")}.jpg`;
+  const currentFrameSrc = `${baseFolder}/frame_${String(currentFrame + 1).padStart(3, "0")}.webp`;
 
   return (
     <section
@@ -161,13 +169,32 @@ export default function Hero() {
       className="relative flex aspect-[3/4] w-full flex-col overflow-hidden bg-[#f4f4f2] sm:aspect-auto sm:h-screen"
     >
       <div aria-hidden="true" className="absolute inset-0">
+        {SHARPEN ? (
+          <svg
+            aria-hidden="true"
+            width="0"
+            height="0"
+            className="absolute"
+            focusable="false"
+          >
+            <filter id="hero-sharpen" colorInterpolationFilters="sRGB">
+              <feConvolveMatrix
+                order="3"
+                preserveAlpha="true"
+                kernelMatrix={SHARPEN_KERNEL}
+              />
+            </filter>
+          </svg>
+        ) : null}
         <Image
           src={currentFrameSrc}
           alt=""
           fill
           priority
           unoptimized
+          quality={100}
           className="object-cover object-center"
+          style={SHARPEN ? { filter: "url(#hero-sharpen)" } : undefined}
           sizes="100vw"
         />
       </div>

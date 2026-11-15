@@ -2,11 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { fadeUp, scaleIn, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
-
-const MotionLink = motion.create(Link);
+import { useEffect, useState } from "react";
 
 type SkillCard = {
   title: string;
@@ -79,12 +75,11 @@ function CornerBrackets() {
 }
 
 /**
- * Scroll-linked zoom. Scrolling down zooms the image in, scrolling up
- * zooms it back out. Anchored to bottom-left with object-contain so the
- * transparent hand PNG fits cleanly without cutting off the fingers or sleeve.
+ * Static image (scroll zoom animation removed). Anchored to bottom-left with
+ * object-contain so the transparent hand PNG fits cleanly without cutting off
+ * the fingers or sleeve.
  */
 function ScrollZoomImage() {
-  const ref = useRef<HTMLDivElement>(null);
   const [imgSrc, setImgSrc] = useState("/webh.png");
 
   useEffect(function () {
@@ -107,23 +102,9 @@ function ScrollZoomImage() {
     });
   }, []);
 
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-
-  // 0 = image just entering at the bottom of the screen, 1 = leaving at the top
-  // Scroll down -> progress goes up -> scale goes 1 -> 1.15 (smooth zoom in without clipping)
-  // Scroll up   -> progress goes down -> scale goes 1.15 -> 1 (zoom out)
-  const rawScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  const scale = useSpring(rawScale, { stiffness: 120, damping: 24, mass: 0.4 });
-
   return (
-    <div ref={ref} className="absolute inset-0 overflow-hidden">
-      <motion.div
-        className="absolute inset-0 origin-bottom-left will-change-transform"
-        style={{ scale }}
-      >
+    <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0">
         <Image
           src={imgSrc}
           alt="First view preview"
@@ -132,7 +113,7 @@ function ScrollZoomImage() {
           sizes="(min-width: 640px) 51vw, 744px"
           unoptimized
         />
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -149,18 +130,13 @@ function SkillCardBlock(props: {
     : "inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] tracking-[0.15em] text-black";
 
   return (
-    <motion.div
+    <div
       className={
         "relative px-[clamp(20px,1.38vw,32px)] py-[clamp(24px,1.65vw,38px)] " +
         card.height +
         " " +
         extraClass
       }
-      initial="hidden"
-      whileInView="show"
-      viewport={viewport}
-      variants={fadeUp}
-      transition={revealTransition(staggerDelay(props.index ?? 0, 0.1))}
     >
       {card.bracketCorners ? <CornerBrackets /> : null}
       <h3 className={titleClass}>{card.title}</h3>
@@ -173,7 +149,7 @@ function SkillCardBlock(props: {
           );
         })}
       </ul>
-    </motion.div>
+    </div>
   );
 }
 
@@ -186,14 +162,7 @@ function StatCard(props: { value: string; label: string; index: number }) {
 
   return (
     <div className="relative flex flex-1 items-center justify-center py-[clamp(40px,2.75vw,64px)]">
-      <motion.div
-        className="relative h-[clamp(98px,6.74vw,157px)] w-[clamp(105px,7.22vw,168px)]"
-        initial="hidden"
-        whileInView="show"
-        viewport={viewport}
-        variants={scaleIn}
-        transition={revealTransition(staggerDelay(props.index, 0.15))}
-      >
+      <div className="relative h-[clamp(98px,6.74vw,157px)] w-[clamp(105px,7.22vw,168px)]">
         {/* back frame — a second plain sheet peeking out behind the front card */}
         <span
           aria-hidden="true"
@@ -225,7 +194,7 @@ function StatCard(props: { value: string; label: string; index: number }) {
             {props.label}
           </span>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -235,32 +204,19 @@ export default function Skills() {
     <section id="skills" className="relative w-full bg-[#f0f0ee]">
       {/* Mobile layout */}
       <div className="px-6 py-16 sm:hidden">
-        <motion.div
-          className="bg-black px-4 py-5 text-center"
-          initial={{ opacity: 0, y: -16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={viewport}
-          transition={revealTransition()}
-        >
+        <div className="bg-black px-4 py-5 text-center">
           <p
             className="text-[20px] uppercase leading-[1.25] tracking-[-1.5px] text-white"
             style={{ fontFamily: '"Times New Roman", serif' }}
           >
             design with purpose, building with precision
           </p>
-        </motion.div>
+        </div>
         <div className="mt-8 flex flex-col gap-4">
           {skillCards.map(function (card, index) {
             return <SkillCardBlock key={card.title} card={card} index={index} />;
           })}
-          <motion.div
-            className="border border-[#e2e2e2] px-5 py-6"
-            initial="hidden"
-            whileInView="show"
-            viewport={viewport}
-            variants={fadeUp}
-            transition={revealTransition(staggerDelay(skillCards.length, 0.1))}
-          >
+          <div className="border border-[#e2e2e2] px-5 py-6">
             <h3 className="inline-block border-b border-black pb-1 font-body text-[24px] tracking-[3.5px] text-black">
               Mobile Development
             </h3>
@@ -274,30 +230,16 @@ export default function Skills() {
               <li>MongoDB</li>
               <li>MySQL</li>
             </ul>
-          </motion.div>
+          </div>
         </div>
-        <motion.div
-          className="mt-8 border border-[#e2e2e2] px-4 py-10 text-center"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition()}
-        >
+        <div className="mt-8 border border-[#e2e2e2] px-4 py-10 text-center">
           <h2 className="font-display text-[40px] uppercase leading-[1.1] tracking-[-2px] text-black">
             Skills &amp;
             <br />
             Certifications
           </h2>
-        </motion.div>
-        <motion.div
-          className="relative mt-4 h-[420px] w-full overflow-hidden"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={scaleIn}
-          transition={revealTransition(0.1)}
-        >
+        </div>
+        <div className="relative mt-4 h-[420px] w-full overflow-hidden">
           <Image
             src="/webh.png"
             alt=""
@@ -305,18 +247,13 @@ export default function Skills() {
             className="object-contain object-left-bottom"
             unoptimized
           />
-        </motion.div>
-        <MotionLink
+        </div>
+        <Link
           href="/certifications"
           className="mt-6 flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black font-['JejuMyeongjo'] text-[clamp(13px,0.79vw,18px)] capitalize tracking-[0.03em] text-white"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition(0.15)}
         >
           Certifications
-        </MotionLink>
+        </Link>
         <div className="relative mt-4 border border-[#e2e2e2] bg-black">
           <span
             aria-hidden="true"
@@ -356,20 +293,14 @@ export default function Skills() {
             style={{ left: "23.43%" }}
           />
           {/* Black banner spanning all columns */}
-          <motion.div
-            className="pointer-events-none absolute left-0 right-0 top-[clamp(47px,3.23vw,75px)] z-20 flex h-[clamp(86px,5.92vw,138px)] items-center justify-center bg-black px-[clamp(24px,1.65vw,38px)]"
-            initial={{ opacity: 0, y: -24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={viewport}
-            transition={revealTransition()}
-          >
+          <div className="pointer-events-none absolute left-0 right-0 top-[clamp(47px,3.23vw,75px)] z-20 flex h-[clamp(86px,5.92vw,138px)] items-center justify-center bg-black px-[clamp(24px,1.65vw,38px)]">
             <p
               className="text-center text-[clamp(32px,2.2vw,51px)] uppercase leading-[clamp(40px,2.75vw,64px)] tracking-[-0.11em] text-[#fffefe]"
               style={{ fontFamily: '"Times New Roman", serif' }}
             >
               design with purpose, building with precision
             </p>
-          </motion.div>
+          </div>
 
           {/* ── Column 1: skill categories ── */}
           <div className="flex flex-col border-l border-r border-[#e2e2e2]">
@@ -384,14 +315,7 @@ export default function Skills() {
                 />
               );
             })}
-            <motion.div
-              className="h-[clamp(224px,15.41vw,358px)] border border-[#e2e2e2] px-[clamp(20px,1.38vw,32px)] py-[clamp(24px,1.65vw,38px)]"
-              initial="hidden"
-              whileInView="show"
-              viewport={viewport}
-              variants={fadeUp}
-              transition={revealTransition(staggerDelay(skillCards.length, 0.1))}
-            >
+            <div className="h-[clamp(224px,15.41vw,358px)] border border-[#e2e2e2] px-[clamp(20px,1.38vw,32px)] py-[clamp(24px,1.65vw,38px)]">
               <h3 className="inline-block border-b border-black pb-1 font-body text-[clamp(18px,1.24vw,29px)] tracking-[0.15em] text-black">
                 Mobile Development
               </h3>
@@ -405,53 +329,35 @@ export default function Skills() {
                 <li>MongoDB</li>
                 <li>MySQL</li>
               </ul>
-            </motion.div>
+            </div>
             <div className="flex-1 border-b border-r border-[#e2e2e2]" />
           </div>
 
           {/* ── Column 2: title + image + bottom cell ── */}
           <div className="flex flex-col border-[#e2e2e2]">
             <div className="h-[clamp(132px,9.08vw,211px)] border-r border-t border-[#e2e2e2]" />
-            <motion.div
-              className="flex h-[clamp(140px,9.6vw,224px)] items-center justify-center border border-[#e2e2e2] px-[clamp(24px,1.65vw,38px)] text-center"
-              initial="hidden"
-              whileInView="show"
-              viewport={viewport}
-              variants={fadeUp}
-              transition={revealTransition(0.1)}
-            >
+            <div className="flex h-[clamp(140px,9.6vw,224px)] items-center justify-center border border-[#e2e2e2] px-[clamp(24px,1.65vw,38px)] text-center">
               <h2 className="font-display text-[clamp(46px,3.2vw,74px)] uppercase leading-[clamp(52px,3.55vw,83px)] tracking-[-0.05em] text-black">
                 Skills &amp;
                 <br />
                 Certifications
               </h2>
-            </motion.div>
-            <motion.div
-              className="relative min-h-[clamp(900px,60vw,1400px)] flex-1 border border-[#e2e2e2]"
-              initial={{ opacity: 0, scale: 1.05 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={viewport}
-              transition={revealTransition(0.2)}
-            >
+            </div>
+            <div className="relative min-h-[clamp(900px,60vw,1400px)] flex-1 border border-[#e2e2e2]">
               <ScrollZoomImage />
-            </motion.div>
+            </div>
           </div>
 
           {/* ── Column 3: certifications + stats ── */}
           <div className="flex flex-col border-r border-[#e2e2e2]">
             <div className="h-[clamp(249px,17.13vw,398px)] border border-[#e2e2e2]" />
             <div className="flex h-[clamp(224px,15.41vw,358px)] items-center justify-center border-x border-b border-[#e2e2e2]">
-              <MotionLink
+              <Link
                 href="/certifications"
                 className="flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black font-['JejuMyeongjo'] text-[clamp(18px,0.9vw,23px)] capitalize tracking-[0.03em] text-white transition-opacity hover:opacity-80"
-                initial="hidden"
-                whileInView="show"
-                viewport={viewport}
-                variants={fadeUp}
-                transition={revealTransition(0.15)}
               >
                 Certifications
-              </MotionLink>
+              </Link>
             </div>
             <div className="relative flex min-h-[clamp(616px,42.37vw,986px)] flex-1 flex-col border border-[#e2e2e2] bg-black">
               <span

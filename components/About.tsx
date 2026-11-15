@@ -9,17 +9,6 @@ type FocusArea = {
   description: string;
 };
 
-type Milestone = {
-  year: string;
-  description: string;
-};
-
-type Experience = {
-  role: string;
-  period: string;
-  company: string;
-};
-
 const focusAreas: FocusArea[] = [
   {
     title: "UI/UX Design",
@@ -37,108 +26,178 @@ const focusAreas: FocusArea[] = [
   },
 ];
 
-const milestones: Milestone[] = [
-  {
-    year: "1st year - 2023-2024",
-    description:
-      "Started my BSc (Hons) in Information Technology journey, building a strong foundation in programming, databases, and software development fundamentals.",
-  },
-  {
-    year: "2nd year - 2025",
-    description:
-      "Expanded my knowledge in web development, object-oriented programming, and software engineering while working on collaborative university projects.",
-  },
-  {
-    year: "3rd year - 2026",
-    description:
-      "Focused on UI/UX design, web development, and software engineering through academic and personal projects. Gained hands-on experience with modern technologies and user-centered design practices.",
-  },
-];
-
-const experiences: Experience[] = [
-  {
-    role: "UI/UX Intern",
-    period: "Present",
-    company: "NextGen CodeX PVT LTD",
-  },
-];
-
-// Design scale reference: the Figma frame is 1513 x 1631px, and the container
-// below now has no max-width cap — it fills the page. So font sizes use a
-// viewport-relative value (vw) as the primary driver, with a legible floor
-// for narrow windows and a generous ceiling that's well above the original
-// design size (so text keeps growing on very wide screens instead of
-// plateauing early).
-const headingText =
-  "text-[clamp(16px,1.98vw,44px)] font-['JejuMyeongjo'] tracking-[0.12em]";
-const subheadingText =
-  "text-[clamp(13px,1.59vw,36px)] font-['JejuMyeongjo'] tracking-[0.12em]";
-const milestoneHeadText =
-  "text-[clamp(12px,1.32vw,30px)] font-['JejuMyeongjo'] tracking-[0.12em]";
+// ---- Text styles (same fonts as before) ----
+const labelText =
+  "text-[clamp(11px,0.95vw,20px)] font-['Instrument_Sans'] tracking-wide text-zinc-500";
 const bodyText =
-  "text-[clamp(10px,1.06vw,22px)] font-['Instrument_Sans'] capitalize tracking-wide leading-[1.75] text-zinc-600";
-const buttonText =
-  "text-[clamp(10px,1.06vw,22px)] font-['JejuMyeongjo'] capitalize tracking-wide text-white";
+  "text-[clamp(11px,1.02vw,22px)] font-['Instrument_Sans'] capitalize tracking-wide leading-[1.7] text-zinc-700";
+const introText =
+  "text-[clamp(14px,1.3vw,28px)] font-['Instrument_Sans'] capitalize tracking-wide leading-[1.55] text-black";
+const subheadingText =
+  "text-[clamp(13px,1.2vw,28px)] font-['JejuMyeongjo'] tracking-[0.12em]";
 
-function AboutContent() {
+// ---- Grid lines (light white) + "+" marks, like the reference ----
+const LINE_OFFSET = "clamp(14px,1.2vw,28px)";
+const LINE_X = ["2.7%", "58.7%", "96.8%"];
+
+function Plus(props: { x: string; edge: "top" | "bottom" }) {
+  const style =
+    props.edge === "top"
+      ? { left: props.x, top: LINE_OFFSET }
+      : { left: props.x, bottom: LINE_OFFSET };
+  const translate =
+    props.edge === "top"
+      ? "-translate-x-1/2 -translate-y-1/2"
+      : "-translate-x-1/2 translate-y-1/2";
+
   return (
-    <>
-      {/* ===================== LEFT COLUMN ===================== */}
-      <div className="absolute left-0 top-[6.5%] h-[93.5%] w-[50.1%] overflow-hidden bg-white">
-        <motion.div
-          className="absolute left-[8.18%] top-0 h-[20.98%] w-[27.44%] bg-[#f2f2f2]"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition()}
-        >
-          <Image
-            src="/profile.jpg"
-            alt="Oshani Wijekoon"
-            fill
-            className="object-cover"
+    <span
+      aria-hidden="true"
+      className={"absolute h-[13px] w-[13px] " + translate}
+      style={style}
+    >
+      <span className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-white" />
+      <span className="absolute bottom-0 left-1/2 top-0 w-px -translate-x-1/2 bg-white" />
+    </span>
+  );
+}
+
+function GridLines() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-[5] hidden sm:block"
+    >
+      {/* horizontal lines */}
+      <span
+        className="absolute left-0 right-0 h-px bg-white"
+        style={{ top: LINE_OFFSET }}
+      />
+      <span
+        className="absolute left-0 right-0 h-px bg-white"
+        style={{ bottom: LINE_OFFSET }}
+      />
+      {/* vertical lines */}
+      {LINE_X.map(function (x) {
+        return (
+          <span
+            key={x}
+            className="absolute bottom-0 top-0 w-px bg-white"
+            style={{ left: x }}
           />
-        </motion.div>
+        );
+      })}
+      {/* "+" marks at the intersections */}
+      {LINE_X.map(function (x) {
+        return <Plus key={"t" + x} x={x} edge="top" />;
+      })}
+      {LINE_X.map(function (x) {
+        return <Plus key={"b" + x} x={x} edge="bottom" />;
+      })}
+    </div>
+  );
+}
 
-        <motion.div
-          className="absolute left-[7.65%] top-[27.28%] w-[42.2%]"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition(0.1)}
-        >
-          <h3 className={`${headingText} font-normal uppercase text-black`}>
-            Profile
-          </h3>
-          <p className={`mt-[4.2%] ${bodyText}`}>
-            I am a third-year Information Technology undergraduate passionate
-            about UI/UX design, web development, and software engineering. I
-            enjoy transforming unique ideas into user-friendly and visually
-            appealing digital solutions.
-          </p>
-        </motion.div>
+// ---- Grain texture for the background ----
+const GRAIN_OPACITY = 0.35;
+const GRAIN_SVG =
+  "<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'>" +
+  "<filter id='n' x='0' y='0' width='100%' height='100%'>" +
+  "<feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/>" +
+  "<feColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.6 0 0 0 -0.5'/>" +
+  "</filter>" +
+  "<rect width='100%' height='100%' filter='url(#n)'/>" +
+  "</svg>";
+const GRAIN_URL = 'url("data:image/svg+xml,' + encodeURIComponent(GRAIN_SVG) + '")';
 
-        <motion.div
-          className="absolute left-[7.65%] top-[50.03%] w-[70.45%]"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition(0.15)}
-        >
-          <h3 className={`${headingText} font-normal uppercase text-black`}>
-            My Focus Areas
-          </h3>
-          <div className="mt-[3%] flex items-stretch gap-[2.64%]">
-            <span aria-hidden="true" className="w-px bg-gray-200" />
-            <div className="flex flex-1 flex-col gap-[6.33%]">
+export default function About() {
+  return (
+    <section
+      id="about"
+      className="relative w-full overflow-hidden bg-[#e3e3e1]"
+    >
+      {/* Grainy background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage: GRAIN_URL,
+          backgroundSize: "260px 260px",
+          opacity: GRAIN_OPACITY,
+        }}
+      />
+
+      <GridLines />
+
+      <div className="relative z-10 flex flex-col gap-10 py-12 sm:grid sm:grid-cols-[58.7fr_41.3fr] sm:gap-0 sm:py-[4.5vw]">
+        {/* ===================== LEFT COLUMN ===================== */}
+        <div className="flex flex-col justify-between gap-12 px-6 sm:gap-[3vw] sm:pl-[5.9vw] sm:pr-[3vw]">
+          {/* Top row: Education + Present */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.2fr] sm:gap-[2.5vw]">
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={viewport}
+              variants={fadeUp}
+              transition={revealTransition()}
+            >
+              <p className={labelText}>Education</p>
+              <p className={`mt-[0.8vw] max-sm:mt-2 ${bodyText}`}>
+                SLIIT - 2023-2027
+                <br />
+                BSc (Hons) in IT Specializing Information Technology
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={viewport}
+              variants={fadeUp}
+              transition={revealTransition(0.1)}
+            >
+              <p className={labelText}>Present</p>
+              <p className={`mt-[0.8vw] max-sm:mt-2 ${bodyText}`}>
+                Currently a 3rd Year, 2nd Semester Information Technology
+                Undergraduate, continuously developing technical, creative, and
+                problem-solving skills while preparing for a career in software
+                engineering and UI/UX design.
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Profile + big heading + focus areas + button */}
+          <div className="flex flex-col gap-8 sm:gap-[2.2vw]">
+            <motion.p
+              className={`max-w-[40vw] max-sm:max-w-none ${introText}`}
+              initial="hidden"
+              whileInView="show"
+              viewport={viewport}
+              variants={fadeUp}
+              transition={revealTransition(0.1)}
+            >
+              I am a third-year Information Technology undergraduate passionate
+              about UI/UX design, web development, and software engineering. I
+              enjoy transforming unique ideas into user-friendly and visually
+              appealing digital solutions.
+            </motion.p>
+
+            <motion.h2
+              className="font-display text-[40px] uppercase leading-none tracking-[-0.06em] text-black sm:text-[clamp(25px,3.77vw,90px)]"
+              initial="hidden"
+              whileInView="show"
+              viewport={viewport}
+              variants={fadeUp}
+              transition={revealTransition(0.15)}
+            >
+              About Me.
+            </motion.h2>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-[1.8vw]">
               {focusAreas.map(function (area, index) {
                 return (
                   <motion.div
                     key={area.title}
-                    className="flex flex-col gap-[1.06%]"
                     initial="hidden"
                     whileInView="show"
                     viewport={viewport}
@@ -150,325 +209,69 @@ function AboutContent() {
                     >
                       {area.title}
                     </h4>
-                    <p className={bodyText}>{area.description}</p>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="absolute bottom-0 left-0 h-[16.79%] w-full bg-black px-[5.8%] py-[8%]"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition(0.2)}
-        >
-          <h4 className={`${subheadingText} font-normal text-white`}>
-            Present
-          </h4>
-          <p className="mt-[2.5%] text-[clamp(11px,1.19vw,26px)] font-['Instrument_Sans'] leading-[1.75] tracking-wide text-white">
-            Currently a 3rd Year, 2nd Semester Information Technology
-            Undergraduate, continuously developing technical, creative, and
-            problem-solving skills while preparing for a career in software
-            engineering and UI/UX design.
-          </p>
-        </motion.div>
-      </div>
-
-      {/* ===================== RIGHT COLUMN ===================== */}
-      <div className="absolute left-[50.23%] top-[6.5%] h-[93.5%] w-[49.77%] overflow-hidden bg-white">
-        <motion.div
-          className="absolute left-[24.17%] top-[7.48%] w-[66.5%]"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition()}
-        >
-          <h3 className={`${headingText} font-normal uppercase text-black`}>
-            Education
-          </h3>
-          <p className={`mt-[1.3%] ${bodyText}`}>
-            SLIIT - 2023-2027
-            <br />
-            BSc (Hons) in IT Specializing Information Technology
-          </p>
-        </motion.div>
-
-        <motion.div
-          className="absolute left-[24.17%] top-[21.31%] w-[66.8%]"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition(0.1)}
-        >
-          <h3 className={`${headingText} font-normal uppercase text-black`}>
-            Academic Journy
-          </h3>
-          <div className="mt-[3.19%] flex flex-col gap-[6.5%]">
-            {milestones.map(function (item, index) {
-              return (
-                <motion.div
-                  key={item.year}
-                  className="flex flex-col gap-[6.5%]"
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={viewport}
-                  variants={fadeUp}
-                  transition={revealTransition(staggerDelay(index, 0.1, 0.2))}
-                >
-                  <h4
-                    className={`${milestoneHeadText} inline-block font-normal text-black underline underline-offset-[3px]`}
-                  >
-                    {item.year}
-                  </h4>
-                  <p className={bodyText}>{item.description}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* Experience — sits right after Academic Journey. */}
-        <motion.div
-          className="absolute left-[24.17%] top-[55.5%] w-[66.8%]"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition(0.15)}
-        >
-          <h3 className={`${headingText} font-normal uppercase text-black`}>
-            Experience
-          </h3>
-          <div className="mt-[3%] flex items-stretch gap-[2.64%]">
-            <span aria-hidden="true" className="w-px bg-gray-200" />
-            <div className="flex flex-1 flex-col gap-[6.33%]">
-              {experiences.map(function (item, index) {
-                return (
-                  <motion.div
-                    key={item.role + item.company}
-                    className="flex flex-col gap-[1.06%]"
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={viewport}
-                    variants={fadeUp}
-                    transition={revealTransition(staggerDelay(index, 0.1, 0.2))}
-                  >
-                    <h4
-                      className={`${subheadingText} inline-block font-normal text-black underline underline-offset-[3px]`}
-                    >
-                      {item.role} - {item.period}
-                    </h4>
-                    <p className={bodyText}>{item.company}</p>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.a
-          href="/resume.pdf"
-          className="absolute left-[24.17%] top-[68%] flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black transition-opacity hover:opacity-80"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition(0.5)}
-        >
-          <span className="font-['JejuMyeongjo'] text-[clamp(15px,0.9vw,21px)] capitalize tracking-[0.03em] text-white">
-            View Resume
-          </span>
-        </motion.a>
-      </div>
-
-      {/* ===================== TITLE + DIVIDER + DECORATIVE TICK ===================== */}
-      <motion.h2
-        className="absolute left-1/2 top-0 text-[clamp(34px,4.76vw,104px)] font-['Inria_Serif'] font-normal uppercase leading-tight text-black"
-        initial={{ opacity: 0, y: -20, x: "-50%" }}
-        whileInView={{ opacity: 1, y: 0, x: "-50%" }}
-        viewport={viewport}
-        transition={revealTransition()}
-      >
-        About
-      </motion.h2>
-      {/* Full-height vertical divider between the two columns. Drawn as its
-          own element (same approach as the tick below) rather than as a
-          border on the column divs, since the column-border approach wasn't
-          rendering reliably. */}
-      <span
-        aria-hidden="true"
-        className="absolute left-1/2 top-[6.5%] h-[93.5%] w-px -translate-x-1/2 bg-neutral-500"
-      />
-      {/* Short decorative tick just under the title. */}
-      <span
-        aria-hidden="true"
-        className="absolute left-[47.3%] top-[6.44%] h-px w-[5.29%] bg-neutral-500"
-      />
-    </>
-  );
-}
-
-export default function About() {
-  return (
-    <section id="about" className="w-full bg-white">
-      {/* Real Figma frame is 1513 x 1631px — NOT square. Using the correct
-          aspect ratio is what keeps every absolutely-positioned child aligned
-          as the container scales. No max-width cap here anymore — it fills
-          the full width of its parent/page, and the font sizes below scale
-          up right along with it instead of maxing out early. */}
-      <div className="relative mx-auto aspect-[1513/1631] w-full bg-white max-sm:hidden">
-        <AboutContent />
-      </div>
-
-      {/* ===================== MOBILE ===================== */}
-      <div className="bg-white px-6 py-16 sm:hidden">
-        <motion.h2
-          className="text-center text-[42px] font-['Inria_Serif'] uppercase leading-none text-black"
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={viewport}
-          transition={revealTransition()}
-        >
-          About
-        </motion.h2>
-        <motion.div
-          className="mx-auto mt-8 h-[190px] w-[140px] overflow-hidden bg-[#f2f2f2]"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={fadeUp}
-          transition={revealTransition(0.1)}
-        >
-          <Image
-            src="/profile.jpg"
-            alt="Oshani Wijekoon"
-            width={140}
-            height={190}
-            className="h-full w-full object-cover"
-          />
-        </motion.div>
-        <motion.div
-          className="mx-auto mt-10 max-w-[420px] space-y-8"
-          initial="hidden"
-          whileInView="show"
-          viewport={viewport}
-          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
-        >
-          <motion.div variants={fadeUp} transition={revealTransition()}>
-            <h3 className="text-[22px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black">
-              Profile
-            </h3>
-            <p className="mt-4 text-[14px] font-['Instrument_Sans'] capitalize leading-[1.8] tracking-wide text-zinc-600">
-              I am a third-year Information Technology undergraduate
-              passionate about UI/UX design, web development, and software
-              engineering. I enjoy transforming unique ideas into
-              user-friendly and visually appealing digital solutions.
-            </p>
-          </motion.div>
-
-          <motion.div variants={fadeUp} transition={revealTransition()}>
-            <h3 className="text-[18px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black">
-              My Focus Areas
-            </h3>
-            <div className="mt-4 flex flex-col gap-5">
-              {focusAreas.map(function (area) {
-                return (
-                  <div key={area.title}>
-                    <h4 className="inline-block text-[15px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black underline underline-offset-[3px]">
-                      {area.title}
-                    </h4>
-                    <p className="mt-1 text-[13px] font-['Instrument_Sans'] capitalize leading-[1.7] tracking-wide text-zinc-600">
+                    <p className={`mt-[0.5vw] max-sm:mt-1 ${bodyText}`}>
                       {area.description}
                     </p>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
-          </motion.div>
 
+            <motion.a
+              href="/resume.pdf"
+              className="flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black transition-opacity hover:opacity-80"
+              initial="hidden"
+              whileInView="show"
+              viewport={viewport}
+              variants={fadeUp}
+              transition={revealTransition(0.3)}
+            >
+              <span className="font-['JejuMyeongjo'] text-[clamp(15px,0.9vw,21px)] capitalize tracking-[0.03em] text-white">
+                View Resume
+              </span>
+            </motion.a>
+          </div>
+        </div>
+
+        {/* ===================== RIGHT COLUMN (image) ===================== */}
+        <div className="px-6 max-sm:order-first sm:flex sm:pl-[3.3vw] sm:pr-[6.5vw]">
           <motion.div
-            className="bg-black px-6 py-6 text-white"
+            className="group relative aspect-[9/10] w-full overflow-hidden rounded-[clamp(6px,0.55vw,14px)] bg-[#f2f2f2] sm:self-center"
+            initial="hidden"
+            whileInView="show"
+            viewport={viewport}
             variants={fadeUp}
-            transition={revealTransition()}
+            transition={revealTransition(0.2)}
           >
-            <h4 className="text-[16px] font-['JejuMyeongjo'] tracking-[0.12em]">
-              Present
-            </h4>
-            <p className="mt-2 text-[13px] font-['Instrument_Sans'] leading-[1.7] tracking-wide">
-              Currently a 3rd year, 2nd semester Information Technology
-              undergraduate, continuously developing technical, creative, and
-              problem-solving skills while preparing for a career in software
-              engineering and UI/UX design.
-            </p>
+            {/* Sharpening filter: adds crispness to the stretched photo */}
+            <svg
+              aria-hidden="true"
+              width="0"
+              height="0"
+              className="absolute"
+              focusable="false"
+            >
+              <filter id="about-sharpen" colorInterpolationFilters="sRGB">
+                <feConvolveMatrix
+                  order="3"
+                  preserveAlpha="true"
+                  kernelMatrix="0 -0.6 0 -0.6 3.4 -0.6 0 -0.6 0"
+                />
+              </filter>
+            </svg>
+            {/* Only the photo zooms on hover; the rounded frame stays put */}
+            <Image
+              src={encodeURI("/Analysis output 2.png")}
+              alt="Oshani Wijekoon"
+              fill
+              sizes="(min-width: 640px) 32vw, 100vw"
+              quality={100}
+              unoptimized
+              style={{ filter: "url(#about-sharpen) contrast(1.04)" }}
+              className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+            />
           </motion.div>
-
-          <motion.div variants={fadeUp} transition={revealTransition()}>
-            <h3 className="text-[18px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black">
-              Education
-            </h3>
-            <p className="mt-3 text-[13px] font-['Instrument_Sans'] capitalize tracking-wide text-zinc-600">
-              SLIIT - 2023-2027
-            </p>
-            <p className="text-[13px] font-['Instrument_Sans'] capitalize tracking-wide text-zinc-600">
-              BSc (Hons) in IT Specializing Information Technology
-            </p>
-          </motion.div>
-
-          <motion.div variants={fadeUp} transition={revealTransition()}>
-            <h3 className="text-[18px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black">
-              Academic Journey
-            </h3>
-            <div className="mt-5 flex flex-col gap-5">
-              {milestones.map(function (item) {
-                return (
-                  <div key={item.year}>
-                    <h4 className="inline-block text-[14px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black underline underline-offset-[3px]">
-                      {item.year}
-                    </h4>
-                    <p className="mt-1 text-[13px] font-['Instrument_Sans'] capitalize leading-[1.7] tracking-wide text-zinc-600">
-                      {item.description}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          <motion.div variants={fadeUp} transition={revealTransition()}>
-            <h3 className="text-[18px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black">
-              Experience
-            </h3>
-            <div className="mt-5 flex flex-col gap-5">
-              {experiences.map(function (item) {
-                return (
-                  <div key={item.role + item.company}>
-                    <h4 className="inline-block text-[14px] font-['JejuMyeongjo'] uppercase tracking-[0.12em] text-black underline underline-offset-[3px]">
-                      {item.role} - {item.period}
-                    </h4>
-                    <p className="mt-1 text-[13px] font-['Instrument_Sans'] capitalize leading-[1.7] tracking-wide text-zinc-600">
-                      {item.company}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          <motion.a
-            href="/resume.pdf"
-            className="inline-block rounded-tl-2xl rounded-br-2xl bg-black px-8 py-3 text-center text-[13px] font-['JejuMyeongjo'] capitalize tracking-wide text-white"
-            variants={fadeUp}
-            transition={revealTransition()}
-          >
-            View Resume
-          </motion.a>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

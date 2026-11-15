@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, useAnimationControls } from "framer-motion";
 import { fadeUp, fadeIn, revealTransition, viewport } from "@/components/lib/motion";
 
 const socialLinks = [
@@ -27,10 +27,10 @@ const socialLinks = [
 // scrolling down zooms the image IN, scrolling up zooms it back OUT.
 const MAX_SCALE = 1.15; // 1 = no zoom — raise for a stronger zoom
 
-// Footer headline zoom: "Let's Work Together." zooms IN as you scroll down
-// to it (and back out when you scroll up). Starts at HEADLINE_MIN_SCALE and
-// reaches full size (1) once the headline is centered on the screen.
-const HEADLINE_MIN_SCALE = 0.6; // 1 = no zoom
+// Footer headline click animation: "Let's Work Together." does a small, slow
+// "pulse" only when you click the words.
+const HEADLINE_CLICK_SCALE = 1.05; // how much it grows on click (1 = none)
+const HEADLINE_CLICK_DURATION = 1.4; // seconds — raise for slower
 
 /**
  * Contact section — Figma node 181:18. Two-column layout with a
@@ -45,10 +45,11 @@ const HEADLINE_MIN_SCALE = 0.6; // 1 = no zoom
  * original 1512px design reference (vw = value / 1512 * 100), floored at
  * the original size and ceilinged well above it.
  *
- * Motion: "get in touch" fades in, the left column content rises up, form
- * fields stagger in one by one, and the footer headline rises up last —
- * same shared timing/easing as every other section. The left background
- * image also has a scroll-linked zoom (down = zoom in, up = zoom out).
+ * Motion: "get in touch" fades in, the left column content rises up, and
+ * form fields stagger in one by one — same shared timing/easing as every
+ * other section. The left background image also has a scroll-linked zoom
+ * (down = zoom in, up = zoom out). The footer headline only animates when
+ * you click it.
  *
  * Form submission: posts to /api/contact (a Next.js API route using
  * Nodemailer) which emails the message to oshaniwijekoon28@gmail.com. See
@@ -67,16 +68,14 @@ export default function Contact() {
   const rawScale = useTransform(scrollYProgress, [0, 1], [1, MAX_SCALE]);
   const bgScale = useSpring(rawScale, { stiffness: 120, damping: 24, mass: 0.4 });
 
-  // Scroll-linked zoom for the footer headline
-  const headlineRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: headlineProgress } = useScroll({
-    target: headlineRef,
-    offset: ["start end", "center center"],
-  });
-  const headlineScale = useSpring(
-    useTransform(headlineProgress, [0, 1], [HEADLINE_MIN_SCALE, 1]),
-    { stiffness: 120, damping: 24, mass: 0.4 }
-  );
+  // Click animation for the footer headline (small + slow)
+  const headlineControls = useAnimationControls();
+  function handleHeadlineClick() {
+    headlineControls.start({
+      scale: [1, HEADLINE_CLICK_SCALE, 1],
+      transition: { duration: HEADLINE_CLICK_DURATION, ease: "easeInOut" },
+    });
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -320,18 +319,11 @@ export default function Contact() {
           + copyright credit line underneath. */}
       <div className="flex min-h-[340px] flex-col items-center justify-center gap-[clamp(32px,2.1vw,51px)] bg-black px-6 pb-[clamp(32px,2.1vw,51px)] pt-[clamp(50px,3.3vw,80px)] text-center lg:min-h-[clamp(340px,29.6vw,720px)] lg:pb-[clamp(44px,2.9vw,72px)]">
         <div className="relative">
-          <motion.div
-            ref={headlineRef}
-            className="will-change-transform"
-            style={{ scale: headlineScale, transformOrigin: "center center" }}
-          >
+          <div>
             <motion.h2
-              className="font-display text-[clamp(40px,7.2vw,112px)] uppercase leading-[1.1] tracking-[-0.03em] text-white"
-              initial="hidden"
-              whileInView="show"
-              viewport={viewport}
-              variants={fadeUp}
-              transition={revealTransition()}
+              className="cursor-pointer select-none font-display text-[clamp(40px,7.2vw,112px)] uppercase leading-[1.1] tracking-[-0.03em] text-white"
+              animate={headlineControls}
+              onClick={handleHeadlineClick}
             >
               Let&apos;s
               <br />
@@ -339,7 +331,7 @@ export default function Contact() {
               <br />
               Together.
             </motion.h2>
-          </motion.div>
+          </div>
           <motion.span
             aria-hidden="true"
             className="absolute left-1/2 top-[33%] h-px w-[92vw] max-w-[1800px] bg-white/30"
