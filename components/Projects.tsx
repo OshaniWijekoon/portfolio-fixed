@@ -132,11 +132,6 @@ function ProjectCard(props: { project: Project; index: number }) {
         >
           {project.number}
         </span>
-        {project.techLabel ? (
-          <span className="font-sans text-[clamp(9px,0.65vw,13px)] uppercase tracking-[0.16em] text-white">
-            {project.techLabel}
-          </span>
-        ) : null}
       </div>
 
       {/* Editorial Monochrome Visual Block */}
@@ -197,11 +192,6 @@ function MobileProjectCard(props: { project: Project; index: number }) {
         >
           {project.number}
         </span>
-        {project.techLabel ? (
-          <span className="font-sans text-[11px] uppercase tracking-[0.16em] text-white">
-            {project.techLabel}
-          </span>
-        ) : null}
       </div>
 
       <div className={"relative w-full overflow-hidden bg-black " + project.imageAspectClass}>

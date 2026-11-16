@@ -28,7 +28,7 @@ const focusAreas: FocusArea[] = [
 
 // ---- Text styles (same fonts as before) ----
 const labelText =
-  "text-[clamp(11px,0.95vw,20px)] font-['Instrument_Sans'] tracking-wide text-zinc-500";
+  "text-[clamp(11px,0.95vw,20px)] font-['Instrument_Sans'] font-normal tracking-wide text-zinc-500";
 const bodyText =
   "text-[clamp(11px,1.02vw,22px)] font-['Instrument_Sans'] capitalize tracking-wide leading-[1.7] text-zinc-700";
 const introText =
@@ -131,8 +131,60 @@ export default function About() {
 
       <div className="relative z-10 flex flex-col gap-10 py-12 sm:grid sm:grid-cols-[58.7fr_41.3fr] sm:gap-0 sm:py-[4.5vw]">
         {/* ===================== LEFT COLUMN ===================== */}
-        <div className="flex flex-col justify-between gap-12 px-6 sm:gap-[3vw] sm:pl-[5.9vw] sm:pr-[3vw]">
-          {/* Top row: Education + Present */}
+        <div className="flex flex-col gap-10 px-6 sm:gap-[2.6vw] sm:pl-[5.9vw] sm:pr-[3vw]">
+          {/* 1. Main heading */}
+          <motion.h2
+            className="font-display text-[40px] uppercase leading-none tracking-[-0.06em] text-black sm:text-[clamp(25px,3.77vw,90px)]"
+            initial="hidden"
+            whileInView="show"
+            viewport={viewport}
+            variants={fadeUp}
+            transition={revealTransition()}
+          >
+            About Me.
+          </motion.h2>
+
+          {/* 2. Intro */}
+          <motion.p
+            className={`max-w-[40vw] max-sm:max-w-none ${introText}`}
+            initial="hidden"
+            whileInView="show"
+            viewport={viewport}
+            variants={fadeUp}
+            transition={revealTransition(0.1)}
+          >
+            I am a third-year Information Technology undergraduate passionate
+            about UI/UX design, web development, and software engineering. I
+            enjoy transforming unique ideas into user-friendly and visually
+            appealing digital solutions.
+          </motion.p>
+
+          {/* 3. Focus areas */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-[1.8vw]">
+            {focusAreas.map(function (area, index) {
+              return (
+                <motion.div
+                  key={area.title}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={viewport}
+                  variants={fadeUp}
+                  transition={revealTransition(staggerDelay(index, 0.1, 0.2))}
+                >
+                  <h3
+                    className={`${subheadingText} inline-block font-normal text-black underline underline-offset-[3px]`}
+                  >
+                    {area.title}
+                  </h3>
+                  <p className={`mt-[0.5vw] max-sm:mt-1 ${bodyText}`}>
+                    {area.description}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* 4. Education + Present */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-[1fr_1.2fr] sm:gap-[2.5vw]">
             <motion.div
               initial="hidden"
@@ -141,7 +193,7 @@ export default function About() {
               variants={fadeUp}
               transition={revealTransition()}
             >
-              <p className={labelText}>Education</p>
+              <h3 className={labelText}>Education</h3>
               <p className={`mt-[0.8vw] max-sm:mt-2 ${bodyText}`}>
                 SLIIT - 2023-2027
                 <br />
@@ -156,7 +208,7 @@ export default function About() {
               variants={fadeUp}
               transition={revealTransition(0.1)}
             >
-              <p className={labelText}>Present</p>
+              <h3 className={labelText}>Present</h3>
               <p className={`mt-[0.8vw] max-sm:mt-2 ${bodyText}`}>
                 Currently a 3rd Year, 2nd Semester Information Technology
                 Undergraduate, continuously developing technical, creative, and
@@ -166,71 +218,20 @@ export default function About() {
             </motion.div>
           </div>
 
-          {/* Profile + big heading + focus areas + button */}
-          <div className="flex flex-col gap-8 sm:gap-[2.2vw]">
-            <motion.p
-              className={`max-w-[40vw] max-sm:max-w-none ${introText}`}
-              initial="hidden"
-              whileInView="show"
-              viewport={viewport}
-              variants={fadeUp}
-              transition={revealTransition(0.1)}
-            >
-              I am a third-year Information Technology undergraduate passionate
-              about UI/UX design, web development, and software engineering. I
-              enjoy transforming unique ideas into user-friendly and visually
-              appealing digital solutions.
-            </motion.p>
-
-            <motion.h2
-              className="font-display text-[40px] uppercase leading-none tracking-[-0.06em] text-black sm:text-[clamp(25px,3.77vw,90px)]"
-              initial="hidden"
-              whileInView="show"
-              viewport={viewport}
-              variants={fadeUp}
-              transition={revealTransition(0.15)}
-            >
-              About Me.
-            </motion.h2>
-
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-[1.8vw]">
-              {focusAreas.map(function (area, index) {
-                return (
-                  <motion.div
-                    key={area.title}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={viewport}
-                    variants={fadeUp}
-                    transition={revealTransition(staggerDelay(index, 0.1, 0.2))}
-                  >
-                    <h4
-                      className={`${subheadingText} inline-block font-normal text-black underline underline-offset-[3px]`}
-                    >
-                      {area.title}
-                    </h4>
-                    <p className={`mt-[0.5vw] max-sm:mt-1 ${bodyText}`}>
-                      {area.description}
-                    </p>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            <motion.a
-              href="/resume.pdf"
-              className="flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black transition-opacity hover:opacity-80"
-              initial="hidden"
-              whileInView="show"
-              viewport={viewport}
-              variants={fadeUp}
-              transition={revealTransition(0.3)}
-            >
-              <span className="font-['JejuMyeongjo'] text-[clamp(15px,0.9vw,21px)] capitalize tracking-[0.03em] text-white">
-                View Resume
-              </span>
-            </motion.a>
-          </div>
+          {/* 5. Resume button */}
+          <motion.a
+            href="/resume.pdf"
+            className="flex h-[clamp(56px,3.7vw,90px)] w-[clamp(180px,11.9vw,290px)] items-center justify-center rounded-tl-[clamp(12px,0.79vw,19px)] rounded-br-[clamp(12px,0.79vw,19px)] bg-black transition-opacity hover:opacity-80"
+            initial="hidden"
+            whileInView="show"
+            viewport={viewport}
+            variants={fadeUp}
+            transition={revealTransition(0.3)}
+          >
+            <span className="font-['JejuMyeongjo'] text-[clamp(15px,0.9vw,21px)] capitalize tracking-[0.03em] text-white">
+              View Resume
+            </span>
+          </motion.a>
         </div>
 
         {/* ===================== RIGHT COLUMN (image) ===================== */}

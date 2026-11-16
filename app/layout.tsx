@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import {
   Inria_Serif,
-  Noto_Serif_KR,
+  Noto_Serif,
   Instrument_Sans,
   Joan,
 } from "next/font/google";
@@ -14,7 +14,7 @@ const inriaSerif = Inria_Serif({
   display: "swap",
 });
 
-const jejuMyeongjo = Noto_Serif_KR({
+const jejuMyeongjo = Noto_Serif({
   subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--font-jeju-myeongjo",
