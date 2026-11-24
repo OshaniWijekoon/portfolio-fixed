@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+import { useState } from "react";
+import type { FocusEvent, PointerEvent } from "react";
 import { motion } from "framer-motion";
 import { fadeUp, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
 
@@ -11,8 +12,6 @@ type Project = {
   techLabel?: string;
   techItems?: string[];
   href?: string;
-  colSpanClass: string;
-  imageAspectClass: string;
 };
 
 const projects: Project[] = [
@@ -23,8 +22,6 @@ const projects: Project[] = [
     description: "Designed a user-centered mobile application interface.",
     techLabel: "Tools",
     techItems: ["Figma", "Canva"],
-    colSpanClass: "sm:col-span-2",
-    imageAspectClass: "aspect-[21/10]",
   },
   {
     number: "02",
@@ -33,8 +30,6 @@ const projects: Project[] = [
     description: "Developed a full-stack tour guide web application.",
     techLabel: "Tech Stack",
     techItems: ["MERN Stack"],
-    colSpanClass: "sm:col-span-1",
-    imageAspectClass: "aspect-[224/150]",
   },
   {
     number: "03",
@@ -43,29 +38,26 @@ const projects: Project[] = [
       "Developed a restaurant mobile application with a clean and intuitive UI.",
     techLabel: "Tech Stack",
     techItems: ["Kotlin", "Android Studio", "Firebase"],
-    colSpanClass: "sm:col-span-1",
-    imageAspectClass: "aspect-[7/4]",
   },
 ];
 
-// Images go in:  public/projects/
-// Make sure the file names / extensions match your files.
-const projectImages: Record<string, { src: string; alt: string }> = {
+// Videos are in the public folder: public/project-1.mp4, project-2.mp4, project-3.mp4
+const projectVideos: Record<string, { src: string; label: string }> = {
   "01": {
-    src: "/projects/project-1.jpg",
-    alt: "Mobile clothing store app UI/UX screens designed in Figma",
+    src: "/project-1.mp4",
+    label: "Preview video of mobile clothing store app screens",
   },
   "02": {
-    src: "/projects/project-2.jpg",
-    alt: "Torvana tour guide platform shown on a laptop",
+    src: "/project-2.mp4",
+    label: "Preview video for the Torvana tour guide platform",
   },
   "03": {
-    src: "/projects/project-3.jpg",
-    alt: "Japanese food restaurant mobile application shown on a laptop",
+    src: "/project-3.mp4",
+    label: "Preview video for the Japanese food restaurant app",
   },
 };
 
-// Film-grain texture (SVG noise). Tweak GRAIN_OPACITY to make it stronger / softer.
+// Film-grain texture on the card videos only
 const GRAIN_OPACITY = 0.28;
 const GRAIN_SVG =
   "<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'>" +
@@ -82,23 +74,83 @@ const GRAIN_SVG =
   "</svg>";
 const GRAIN_URL = 'url("data:image/svg+xml,' + encodeURIComponent(GRAIN_SVG) + '")';
 
+// Subtle background grid lines (lighter than the #b8b8b8 frame/border lines)
+const BG_LINE_GRID_STYLE = {
+  backgroundImage:
+    "linear-gradient(to right, rgba(0,0,0,0.045) 1px, transparent 1px), " +
+    "linear-gradient(to bottom, rgba(0,0,0,0.045) 1px, transparent 1px)",
+  backgroundSize: "clamp(36px, 3.2vw, 64px) clamp(36px, 3.2vw, 64px)",
+};
+
+// Small architectural "+" crosshair marker at line intersections
+function Crosshair(props: { className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={
+        "pointer-events-none absolute z-10 h-[9px] w-[9px] -translate-x-1/2 " +
+        (props.className ?? "")
+      }
+    >
+      <span className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-[#8a8a8a]" />
+      <span className="absolute bottom-0 top-0 left-1/2 w-px -translate-x-1/2 bg-[#8a8a8a]" />
+    </span>
+  );
+}
+
+// How long the card takes to turn (slower = bigger number)
+const FLIP_DURATION_MS = 1000;
+
+// Card widths (sized for 9:16 vertical videos)
+const DESKTOP_CARD_MAX = "w-full max-w-[clamp(180px,17vw,310px)]";
+const MOBILE_CARD_MAX = "w-full max-w-[230px]";
+
+// Card shape matches the 1080x1920 (9:16) video dimensions so the full video fits without cropping
+const CARD_SHAPE = "aspect-[9/16] rounded-[clamp(14px,1.3vw,24px)]";
+
+// Size classes for the desktop and mobile versions of the card
+const SIZES = {
+  desktop: {
+    pill: "inset-x-[clamp(8px,0.75vw,14px)] bottom-[clamp(8px,0.75vw,14px)] rounded-[clamp(9px,0.8vw,15px)] px-[clamp(10px,0.85vw,16px)] py-[clamp(6px,0.5vw,10px)]",
+    pillText: "text-[clamp(9px,0.7vw,13px)]",
+    backBody:
+      "gap-[clamp(8px,0.8vw,16px)] p-[clamp(14px,1.25vw,24px)]",
+    number: "text-[clamp(10px,0.72vw,14px)]",
+    desc: "text-[clamp(11px,0.82vw,16px)] leading-[1.55] tracking-[0.06em]",
+    techLabel: "text-[clamp(10px,0.72vw,14px)] tracking-[0.12em]",
+    techList: "text-[clamp(10px,0.72vw,14px)] leading-[1.6] tracking-[0.12em]",
+    link: "text-[clamp(10px,0.72vw,14px)] tracking-[0.14em]",
+    name: "mt-[clamp(12px,1vw,20px)] px-1 text-[clamp(14px,1.08vw,21px)] leading-[1.35] tracking-[-0.005em]",
+  },
+  mobile: {
+    pill: "inset-x-2.5 bottom-2.5 rounded-[11px] px-3 py-1.5",
+    pillText: "text-[11px]",
+    backBody: "gap-3 p-4",
+    number: "text-[11px]",
+    desc: "text-[12.5px] leading-[1.55] tracking-[0.04em]",
+    techLabel: "text-[11.5px] tracking-[0.05em]",
+    techList: "text-[11.5px] leading-[1.6] tracking-[0.05em]",
+    link: "text-[11.5px] tracking-[0.1em]",
+    name: "mt-3 px-1 text-center text-[16px] leading-[1.35] tracking-[-0.005em]",
+  },
+};
+
 function EditorialVisual(props: { number: string }) {
-  const img = projectImages[props.number];
+  const vid = projectVideos[props.number];
 
   return (
     <>
-      {/* Card 01 only: show the whole image (no cropping) on a matching light backdrop */}
-      {props.number === "01" ? (
-        <div aria-hidden="true" className="absolute inset-0 bg-[#f4f4f4]" />
-      ) : null}
-      <Image
-        src={img.src}
-        alt={img.alt}
-        fill
-        sizes="(min-width: 640px) 50vw, 100vw"
-        className={props.number === "01" ? "object-contain" : "object-cover"}
+      <video
+        src={vid.src}
+        aria-label={vid.label}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
       />
-      {/* Grain overlay on top of the image */}
+      {/* Grain overlay on top of the video */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
@@ -112,63 +164,170 @@ function EditorialVisual(props: { number: string }) {
   );
 }
 
+// ---- Card that flips to show the project details ----
+function FlipCard(props: { project: Project; mobile: boolean }) {
+  const project = props.project;
+  const s = props.mobile ? SIZES.mobile : SIZES.desktop;
+  const [flipped, setFlipped] = useState(false);
+
+  const hidden = {
+    backfaceVisibility: "hidden" as const,
+    WebkitBackfaceVisibility: "hidden" as const,
+  };
+
+  function onEnter(e: PointerEvent<HTMLDivElement>) {
+    if (e.pointerType === "mouse") setFlipped(true);
+  }
+  function onLeave(e: PointerEvent<HTMLDivElement>) {
+    if (e.pointerType === "mouse") setFlipped(false);
+  }
+  function onUp(e: PointerEvent<HTMLDivElement>) {
+    // Touch / pen: tap to flip back and forth
+    if (e.pointerType !== "mouse") setFlipped(function (f) { return !f; });
+  }
+  function onFocus(e: FocusEvent<HTMLDivElement>) {
+    // Keyboard users: flip when the card (or its link) gets keyboard focus
+    if (e.target.matches(":focus-visible")) setFlipped(true);
+  }
+  function onBlur(e: FocusEvent<HTMLDivElement>) {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFlipped(false);
+  }
+
+  return (
+    <div className="flex w-full flex-col">
+      {/* The card itself: only this area reacts to the cursor */}
+      <div
+        className={
+          "relative w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 " +
+          CARD_SHAPE
+        }
+        style={{ perspective: "1400px" }}
+        tabIndex={0}
+        role="group"
+        aria-label={(project.title ?? "Project") + " details"}
+        onPointerEnter={onEnter}
+        onPointerLeave={onLeave}
+        onPointerUp={onUp}
+        onFocus={onFocus}
+        onBlur={onBlur}
+      >
+        <div
+          className="relative h-full w-full ease-in-out motion-reduce:transition-none"
+          style={{
+            transformStyle: "preserve-3d",
+            transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+            transitionProperty: "transform",
+            transitionDuration: FLIP_DURATION_MS + "ms",
+          }}
+        >
+          {/* ---------- FRONT: video + glass bar ---------- */}
+          <div
+            className={"absolute inset-0 overflow-hidden bg-[#d8d8d8] " + CARD_SHAPE}
+            style={hidden}
+          >
+            <EditorialVisual number={project.number} />
+
+            {/* Frosted-glass bar: only shows "Project No - 01" */}
+            <div
+              className={
+                "absolute flex items-center justify-center border border-white/40 bg-white/65 shadow-[0_2px_14px_rgba(0,0,0,0.08)] backdrop-blur-md " +
+                s.pill
+              }
+            >
+              <span
+                className={
+                  "shrink-0 font-mono uppercase tracking-[0.08em] text-[#1a1a1a] " +
+                  s.pillText
+                }
+              >
+                Project No - {project.number}
+              </span>
+            </div>
+          </div>
+
+          {/* ---------- BACK: all the details ---------- */}
+          <div
+            className={
+              "absolute inset-0 flex flex-col overflow-hidden bg-black text-white " +
+              CARD_SHAPE +
+              (flipped ? "" : " pointer-events-none")
+            }
+            style={{ ...hidden, transform: "rotateY(180deg)" }}
+            aria-hidden={!flipped}
+          >
+            <div className={"flex min-h-0 flex-1 flex-col overflow-y-auto " + s.backBody}>
+              <span
+                className={
+                  "font-mono uppercase tracking-[0.14em] text-white/60 " + s.number
+                }
+              >
+                Project No - {project.number}
+              </span>
+
+              {project.description ? (
+                <p className={"font-sans text-white/90 " + s.desc}>
+                  {project.description}
+                </p>
+              ) : null}
+
+              {project.techItems && project.techItems.length > 0 ? (
+                <div>
+                  <p
+                    className={
+                      "font-sans font-bold leading-none text-white underline decoration-[0.5px] underline-offset-[2px] " +
+                      s.techLabel
+                    }
+                  >
+                    {project.techLabel}:
+                  </p>
+                  <ul className={"mt-[0.5em] font-sans text-white/80 " + s.techList}>
+                    {project.techItems.map(function (item) {
+                      return <li key={item}>- {item}</li>;
+                    })}
+                  </ul>
+                </div>
+              ) : null}
+
+              {project.href ? (
+                <a
+                  href={project.href}
+                  tabIndex={flipped ? 0 : -1}
+                  className={
+                    "mt-auto inline-block w-fit font-sans uppercase text-white underline decoration-[0.5px] underline-offset-[3px] transition-opacity hover:opacity-70 focus:outline-none focus-visible:ring-1 focus-visible:ring-white " +
+                    s.link
+                  }
+                >
+                  View project &rarr;
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Project name under the card (outside the flip area, so hovering it does nothing) */}
+      {project.title ? (
+        <h3 className={"font-body font-medium text-[#12182b] " + s.name}>
+          {project.title}
+        </h3>
+      ) : null}
+    </div>
+  );
+}
+
 function ProjectCard(props: { project: Project; index: number }) {
   const project = props.project;
 
   return (
     <motion.article
-      className={"flex flex-col " + project.colSpanClass}
+      className={"relative z-10 flex flex-col " + DESKTOP_CARD_MAX}
       initial="hidden"
       whileInView="show"
       viewport={viewport}
       variants={fadeUp}
       transition={revealTransition(staggerDelay(props.index, 0.12))}
     >
-      {/* Top Black Strip (matches reference layout with existing text & black/white colors) */}
-      <div className="flex items-center justify-between bg-black px-[clamp(10px,0.9vw,18px)] py-[clamp(5px,0.42vw,9px)]">
-        <span
-          className="text-[clamp(10px,0.72vw,15px)] uppercase tracking-[0.14em] text-white"
-          style={{ fontFamily: '"Times New Roman", serif' }}
-        >
-          {project.number}
-        </span>
-      </div>
-
-      {/* Editorial Monochrome Visual Block */}
-      <div className={"relative w-full overflow-hidden bg-black " + project.imageAspectClass}>
-        <EditorialVisual number={project.number} />
-      </div>
-
-      {/* Text Content Below Image (preserves exact text, links, and colors) */}
-      <div className="bg-[#f7f7f7] px-[clamp(12px,1.1vw,24px)] py-[clamp(14px,1.4vw,30px)]">
-        {project.title ? (
-          <a
-            href={project.href ?? "#"}
-            className="block font-body text-[clamp(14px,1.15vw,24px)] uppercase leading-[1.35] tracking-[0.08em] text-black underline decoration-[0.5px] underline-offset-[4px] transition-opacity hover:opacity-70 focus:outline-none focus-visible:ring-1 focus-visible:ring-black"
-          >
-            {project.title}
-          </a>
-        ) : null}
-
-        {project.description ? (
-          <p className="mt-[clamp(8px,0.75vw,16px)] font-sans text-[clamp(11px,0.88vw,19px)] leading-[1.6] tracking-[0.12em] text-[#3e3e3e]">
-            {project.description}
-          </p>
-        ) : null}
-
-        {project.techItems && project.techItems.length > 0 ? (
-          <div className="mt-[clamp(10px,0.95vw,20px)]">
-            <p className="font-sans text-[clamp(10px,0.78vw,17px)] font-bold leading-none tracking-[0.12em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px]">
-              {project.techLabel}:
-            </p>
-            <ul className="mt-[clamp(5px,0.5vw,10px)] font-sans text-[clamp(10px,0.78vw,17px)] leading-[1.6] tracking-[0.14em] text-[#3e3e3e]">
-              {project.techItems.map(function (item) {
-                return <li key={item}>- {item}</li>;
-              })}
-            </ul>
-          </div>
-        ) : null}
-      </div>
+      <FlipCard project={project} mobile={false} />
     </motion.article>
   );
 }
@@ -178,55 +337,14 @@ function MobileProjectCard(props: { project: Project; index: number }) {
 
   return (
     <motion.article
-      className="w-full"
+      className={"relative z-10 mx-auto " + MOBILE_CARD_MAX}
       initial="hidden"
       whileInView="show"
       viewport={viewport}
       variants={fadeUp}
       transition={revealTransition(staggerDelay(props.index, 0.1))}
     >
-      <div className="flex items-center justify-between bg-black px-3.5 py-2">
-        <span
-          className="text-[13px] uppercase tracking-[0.14em] text-white"
-          style={{ fontFamily: '"Times New Roman", serif' }}
-        >
-          {project.number}
-        </span>
-      </div>
-
-      <div className={"relative w-full overflow-hidden bg-black " + project.imageAspectClass}>
-        <EditorialVisual number={project.number} />
-      </div>
-
-      <div className="bg-[#f7f7f7] px-4 py-5">
-        {project.title ? (
-          <a
-            href={project.href ?? "#"}
-            className="block font-body text-[15px] uppercase leading-[1.4] tracking-[0.08em] text-black underline decoration-[0.5px] underline-offset-[3px]"
-          >
-            {project.title}
-          </a>
-        ) : null}
-
-        {project.description ? (
-          <p className="mt-2.5 font-sans text-[13px] leading-[1.6] tracking-[0.05em] text-[#3e3e3e]">
-            {project.description}
-          </p>
-        ) : null}
-
-        {project.techItems && project.techItems.length > 0 ? (
-          <div className="mt-3">
-            <p className="font-sans text-[12px] font-bold leading-none tracking-[0.05em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px]">
-              {project.techLabel}:
-            </p>
-            <ul className="mt-2 font-sans text-[12px] leading-[1.8] tracking-[0.05em] text-[#3e3e3e]">
-              {project.techItems.map(function (item) {
-                return <li key={item}>- {item}</li>;
-              })}
-            </ul>
-          </div>
-        ) : null}
-      </div>
+      <FlipCard project={project} mobile />
     </motion.article>
   );
 }
@@ -235,9 +353,34 @@ export default function Projects() {
   return (
     <section id="projects" className="w-full overflow-hidden bg-white">
       {/* ===================== MOBILE ===================== */}
-      <div className="flex flex-col gap-8 px-6 py-12 sm:hidden">
+      <div
+        className="relative flex flex-col gap-10 px-6 py-12 sm:hidden"
+        style={BG_LINE_GRID_STYLE}
+      >
+        {/* Symmetric Mobile architectural border lines (all #b8b8b8) */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-4 h-px bg-[#b8b8b8]"
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-4 h-px bg-[#b8b8b8]"
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 left-3 w-px bg-[#b8b8b8]"
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-3 w-px bg-[#b8b8b8]"
+        />
+        <Crosshair className="left-3 top-4 -translate-y-1/2" />
+        <Crosshair className="left-[calc(100%-12px)] top-4 -translate-y-1/2" />
+        <Crosshair className="left-3 bottom-4 translate-y-1/2" />
+        <Crosshair className="left-[calc(100%-12px)] bottom-4 translate-y-1/2" />
+
         <motion.h2
-          className="font-display text-[40px] uppercase leading-none tracking-[-0.03em] text-black"
+          className="relative z-10 font-display text-[40px] uppercase leading-none tracking-[-0.03em] text-black"
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewport}
@@ -246,17 +389,19 @@ export default function Projects() {
           Projects
         </motion.h2>
 
-        {projects.map(function (project, index) {
-          return (
-            <MobileProjectCard key={project.number} project={project} index={index} />
-          );
-        })}
+        <div className="flex flex-col gap-10">
+          {projects.map(function (project, index) {
+            return (
+              <MobileProjectCard key={project.number} project={project} index={index} />
+            );
+          })}
+        </div>
 
         <motion.a
           href="https://github.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="self-end font-sans text-[13px] tracking-[0.1em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px]"
+          className="relative z-10 self-end font-sans text-[13px] tracking-[0.1em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px]"
           initial="hidden"
           whileInView="show"
           viewport={viewport}
@@ -270,67 +415,79 @@ export default function Projects() {
       {/* ===================== DESKTOP ===================== */}
       <div className="hidden px-0 py-4 sm:block sm:py-6">
         <div className="mx-auto w-full px-[2.6vw]">
-          <div className="relative mx-auto w-full max-w-[3000px] overflow-hidden bg-white pb-[clamp(48px,4.2vw,96px)] pt-[clamp(24px,2.2vw,48px)]">
-            {/* Outer & Architectural Grid Hairlines */}
-            <span
+          <div className="relative mx-auto w-full max-w-[3000px] overflow-hidden bg-white py-[18px]">
+            {/* Architectural background line grid clipped inside the symmetric outer frame */}
+            <div
               aria-hidden="true"
-              className="pointer-events-none absolute left-0 right-0 top-[2.2%] h-px bg-[#a4a4a4]"
-            />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-[#a4a4a4]"
-            />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 left-[1.5%] top-0 w-px bg-[#a4a4a4]"
-            />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 right-[1%] top-0 w-px bg-[#a4a4a4]"
+              className="pointer-events-none absolute bottom-[18px] left-[1.5%] right-[1.5%] top-[18px]"
+              style={BG_LINE_GRID_STYLE}
             />
 
+            {/* Symmetric Outer Architectural Frame Hairlines (exact integer pixels so all 4 lines render at identical darkness: #b8b8b8) */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-0 right-0 top-[18px] h-px bg-[#b8b8b8]"
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-[18px] left-0 right-0 h-px bg-[#b8b8b8]"
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-0 left-[1.5%] top-0 w-px bg-[#b8b8b8]"
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-0 right-[1.5%] top-0 w-px bg-[#b8b8b8]"
+            />
 
-            {/* Top Header Row */}
-            <div className="relative mb-[clamp(22px,2.2vw,48px)] flex items-end justify-between px-[3.2%] pt-[clamp(12px,1.4vw,32px)]">
-              <motion.h2
-                className="font-display text-[clamp(25px,3.77vw,90px)] uppercase leading-none tracking-[-0.06em] text-black"
-                initial={{ opacity: 0, y: -20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+            {/* Corner "+" Crosshairs */}
+            <Crosshair className="left-[1.5%] top-[18px] -translate-y-1/2" />
+            <Crosshair className="left-[98.5%] top-[18px] -translate-y-1/2" />
+            <Crosshair className="left-[1.5%] bottom-[18px] translate-y-1/2" />
+            <Crosshair className="left-[98.5%] bottom-[18px] translate-y-1/2" />
+
+            {/* Inner content box with symmetric padding inside the 1.5% / 18px frame */}
+            <div className="relative z-10 mx-[1.5%] flex flex-col px-[clamp(24px,4vw,72px)] pb-[clamp(44px,4.2vw,84px)] pt-[clamp(28px,3vw,60px)]">
+              {/* Top Header Row */}
+              <div className="mb-[clamp(28px,3vw,56px)] flex items-end justify-between">
+                <motion.h2
+                  className="font-display text-[clamp(25px,3.77vw,90px)] uppercase leading-none tracking-[-0.06em] text-black"
+                  initial={{ opacity: 0, y: -20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={viewport}
+                  transition={revealTransition()}
+                >
+                  Projects
+                </motion.h2>
+              </div>
+
+              {/* 3 equal cards with uniform spacing between cards and outer edges */}
+              <div className="mx-auto grid w-full max-w-[1280px] grid-cols-3 items-start justify-items-center gap-[clamp(24px,4.5vw,80px)]">
+                {projects.map(function (project, index) {
+                  return (
+                    <ProjectCard key={project.number} project={project} index={index} />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* GitHub link in the bottom-right corner */}
+            <div className="absolute bottom-[34px] right-[3.2%] z-10 translate-y-1/2">
+              <motion.a
+                href="https://github.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block font-sans text-[clamp(10px,0.78vw,18px)] tracking-[0.16em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px] transition-opacity hover:opacity-70"
+                initial="hidden"
+                whileInView="show"
                 viewport={viewport}
-                transition={revealTransition()}
+                variants={fadeUp}
+                transition={revealTransition(0.5)}
               >
-                Projects
-              </motion.h2>
+                GitHub
+              </motion.a>
             </div>
-
-            {/* Horizontal hairline right above the 3 top-aligned editorial cards */}
-            <span
-              aria-hidden="true"
-              className="block h-px w-full bg-[#e2e2e2]"
-            />
-
-            {/* 4-Column Asymmetric Grid: Card 01 spans 2 cols, Card 02 spans 1 col, Card 03 spans 1 col */}
-            <div className="grid grid-cols-4 items-start gap-[clamp(14px,1.4vw,32px)] px-[3.2%] pt-[clamp(10px,0.9vw,20px)]">
-              {projects.map(function (project, index) {
-                return (
-                  <ProjectCard key={project.number} project={project} index={index} />
-                );
-              })}
-            </div>
-
-            <motion.a
-              href="https://github.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute bottom-[2.8%] right-[3.2%] font-sans text-[clamp(10px,0.78vw,18px)] tracking-[0.16em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px] transition-opacity hover:opacity-70"
-              initial="hidden"
-              whileInView="show"
-              viewport={viewport}
-              variants={fadeUp}
-              transition={revealTransition(0.5)}
-            >
-              GitHub
-            </motion.a>
           </div>
         </div>
       </div>
