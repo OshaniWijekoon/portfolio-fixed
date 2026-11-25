@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FocusEvent, PointerEvent } from "react";
 import { motion } from "framer-motion";
 import { fadeUp, revealTransition, viewport, staggerDelay } from "@/components/lib/motion";
@@ -58,7 +58,7 @@ const projectVideos: Record<string, { src: string; label: string }> = {
 };
 
 // Film-grain texture on the card videos only
-const GRAIN_OPACITY = 0.28;
+const GRAIN_OPACITY = 0.25;
 const GRAIN_SVG =
   "<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'>" +
   "<filter id='n' x='0' y='0' width='100%' height='100%'>" +
@@ -98,67 +98,85 @@ function Crosshair(props: { className?: string }) {
   );
 }
 
-// How long the card takes to turn (slower = bigger number)
+// How long the card takes to turn
 const FLIP_DURATION_MS = 1000;
 
-// Card widths (sized for 9:16 vertical videos)
-const DESKTOP_CARD_MAX = "w-full max-w-[clamp(180px,17vw,310px)]";
-const MOBILE_CARD_MAX = "w-full max-w-[230px]";
+// Slightly smaller than `w-[25%] max-w-[360px]` (reduced by ~10% to `w-[22.5%] max-w-[315px]`)
+// `justify-evenly` keeps all 4 horizontal spaces 100% equal.
+const DESKTOP_CARD_WIDTH = "w-[22.5%] max-w-[315px] shrink-0";
+const MOBILE_CARD_MAX = "w-full max-w-[245px]";
 
-// Card shape matches the 1080x1920 (9:16) video dimensions so the full video fits without cropping
-const CARD_SHAPE = "aspect-[9/16] rounded-[clamp(14px,1.3vw,24px)]";
+// Balanced portrait ratio (`aspect-[3/4]`)
+const CARD_SHAPE = "aspect-[3/4] rounded-[clamp(14px,1.35vw,24px)]";
 
 // Size classes for the desktop and mobile versions of the card
 const SIZES = {
   desktop: {
-    pill: "inset-x-[clamp(8px,0.75vw,14px)] bottom-[clamp(8px,0.75vw,14px)] rounded-[clamp(9px,0.8vw,15px)] px-[clamp(10px,0.85vw,16px)] py-[clamp(6px,0.5vw,10px)]",
-    pillText: "text-[clamp(9px,0.7vw,13px)]",
     backBody:
-      "gap-[clamp(8px,0.8vw,16px)] p-[clamp(14px,1.25vw,24px)]",
-    number: "text-[clamp(10px,0.72vw,14px)]",
-    desc: "text-[clamp(11px,0.82vw,16px)] leading-[1.55] tracking-[0.06em]",
-    techLabel: "text-[clamp(10px,0.72vw,14px)] tracking-[0.12em]",
-    techList: "text-[clamp(10px,0.72vw,14px)] leading-[1.6] tracking-[0.12em]",
-    link: "text-[clamp(10px,0.72vw,14px)] tracking-[0.14em]",
-    name: "mt-[clamp(12px,1vw,20px)] px-1 text-[clamp(14px,1.08vw,21px)] leading-[1.35] tracking-[-0.005em]",
+      "gap-[clamp(8px,0.75vw,16px)] p-[clamp(14px,1.3vw,26px)]",
+    number: "text-[clamp(10px,0.72vw,15px)]",
+    desc: "text-[clamp(11px,0.85vw,17px)] leading-[1.55] tracking-[0.07em]",
+    techLabel: "text-[clamp(10px,0.75vw,15px)] tracking-[0.12em]",
+    techList: "text-[clamp(10px,0.75vw,15px)] leading-[1.6] tracking-[0.12em]",
+    link: "text-[clamp(10px,0.75vw,15px)] tracking-[0.14em]",
+    name: "mt-[clamp(11px,1vw,20px)] px-[clamp(2px,0.35vw,6px)] text-[clamp(14px,1.12vw,23px)] leading-[1.3] tracking-[-0.005em]",
   },
   mobile: {
-    pill: "inset-x-2.5 bottom-2.5 rounded-[11px] px-3 py-1.5",
-    pillText: "text-[11px]",
     backBody: "gap-3 p-4",
-    number: "text-[11px]",
-    desc: "text-[12.5px] leading-[1.55] tracking-[0.04em]",
+    number: "text-[11.5px]",
+    desc: "text-[12.5px] leading-[1.55] tracking-[0.05em]",
     techLabel: "text-[11.5px] tracking-[0.05em]",
     techList: "text-[11.5px] leading-[1.6] tracking-[0.05em]",
     link: "text-[11.5px] tracking-[0.1em]",
-    name: "mt-3 px-1 text-center text-[16px] leading-[1.35] tracking-[-0.005em]",
+    name: "mt-2.5 px-1 text-[16px] leading-[1.3] tracking-[-0.005em]",
   },
 };
 
 function EditorialVisual(props: { number: string }) {
   const vid = projectVideos[props.number];
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(function () {
+    const el = videoRef.current;
+    if (!el) return;
+    el.defaultMuted = true;
+    el.muted = true;
+    el.playsInline = true;
+  }, []);
 
   return (
     <>
       <video
+        ref={videoRef}
+        data-project-video={props.number}
         src={vid.src}
         aria-label={vid.label}
         autoPlay
         loop
         muted
         playsInline
-        preload="metadata"
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+        preload="auto"
+        className="pointer-events-none absolute inset-0 h-full w-full rounded-[inherit] object-cover object-center"
       />
       {/* Grain overlay on top of the video */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 rounded-[inherit]"
         style={{
           backgroundImage: GRAIN_URL,
           backgroundSize: "240px 240px",
           opacity: GRAIN_OPACITY,
         }}
+      />
+      {/* Diagonal glass reflection sheen across the card face */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[linear-gradient(130deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0.06)_38%,transparent_58%,rgba(255,255,255,0.16)_100%)]"
+      />
+      {/* Frosted glass inner bezel highlight + crisp outer edge ring */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-[inherit] border border-white/55 ring-1 ring-black/15 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.85),inset_0_-1.5px_2px_rgba(0,0,0,0.2)]"
       />
     </>
   );
@@ -220,48 +238,40 @@ function FlipCard(props: { project: Project; mobile: boolean }) {
             transitionDuration: FLIP_DURATION_MS + "ms",
           }}
         >
-          {/* ---------- FRONT: video + glass bar ---------- */}
+          {/* ---------- FRONT: video with glassy bezel & soft glass elevation shadow ---------- */}
           <div
-            className={"absolute inset-0 overflow-hidden bg-[#d8d8d8] " + CARD_SHAPE}
+            className={
+              "absolute inset-0 overflow-hidden bg-[#d8d8d8] shadow-[0_14px_32px_-10px_rgba(0,0,0,0.18)] [clip-path:inset(0_round_clamp(14px,1.35vw,24px))] " +
+              CARD_SHAPE
+            }
             style={hidden}
           >
             <EditorialVisual number={project.number} />
-
-            {/* Frosted-glass bar: only shows "Project No - 01" */}
-            <div
-              className={
-                "absolute flex items-center justify-center border border-white/40 bg-white/65 shadow-[0_2px_14px_rgba(0,0,0,0.08)] backdrop-blur-md " +
-                s.pill
-              }
-            >
-              <span
-                className={
-                  "shrink-0 font-mono uppercase tracking-[0.08em] text-[#1a1a1a] " +
-                  s.pillText
-                }
-              >
-                Project No - {project.number}
-              </span>
-            </div>
           </div>
 
-          {/* ---------- BACK: all the details ---------- */}
+          {/* ---------- BACK: dark smoked-glass finish with specular glass rim ---------- */}
           <div
             className={
-              "absolute inset-0 flex flex-col overflow-hidden bg-black text-white " +
+              "absolute inset-0 flex flex-col overflow-hidden border border-white/25 bg-zinc-950/90 text-white shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.35),0_14px_32px_-10px_rgba(0,0,0,0.28)] backdrop-blur-xl [clip-path:inset(0_round_clamp(14px,1.35vw,24px))] " +
               CARD_SHAPE +
               (flipped ? "" : " pointer-events-none")
             }
             style={{ ...hidden, transform: "rotateY(180deg)" }}
             aria-hidden={!flipped}
           >
-            <div className={"flex min-h-0 flex-1 flex-col overflow-y-auto " + s.backBody}>
+            {/* Subtle diagonal glass sheen on the back of the card */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.03)_42%,transparent_65%,rgba(255,255,255,0.08)_100%)]"
+            />
+
+            <div className={"relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto " + s.backBody}>
               <span
                 className={
                   "font-mono uppercase tracking-[0.14em] text-white/60 " + s.number
                 }
               >
-                Project No - {project.number}
+                No. {project.number}
               </span>
 
               {project.description ? (
@@ -320,7 +330,7 @@ function ProjectCard(props: { project: Project; index: number }) {
 
   return (
     <motion.article
-      className={"relative z-10 flex flex-col " + DESKTOP_CARD_MAX}
+      className={"relative z-10 flex flex-col " + DESKTOP_CARD_WIDTH}
       initial="hidden"
       whileInView="show"
       viewport={viewport}
@@ -350,13 +360,124 @@ function MobileProjectCard(props: { project: Project; index: number }) {
 }
 
 export default function Projects() {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Ensure all visible card videos start and play simultaneously
+  useEffect(function () {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    function getAllVideos(): HTMLVideoElement[] {
+      if (!section) return [];
+      return Array.from(
+        section.querySelectorAll<HTMLVideoElement>("video[data-project-video]")
+      );
+    }
+
+    function getVisibleVideos(): HTMLVideoElement[] {
+      return getAllVideos().filter(function (v) {
+        return v.offsetParent !== null;
+      });
+    }
+
+    let syncedOnce = false;
+
+    function playAllVisible(restartTogether: boolean) {
+      const visible = getVisibleVideos();
+      const hidden = getAllVideos().filter(function (v) {
+        return v.offsetParent === null;
+      });
+
+      hidden.forEach(function (v) {
+        if (!v.paused) v.pause();
+      });
+
+      if (visible.length === 0) return;
+
+      const allReady = visible.every(function (v) {
+        return v.readyState >= 2;
+      });
+
+      visible.forEach(function (v) {
+        v.defaultMuted = true;
+        v.muted = true;
+        if (restartTogether && allReady && !syncedOnce) {
+          try {
+            v.currentTime = 0;
+          } catch {
+            // ignore seek error before metadata
+          }
+        }
+        if (v.paused) {
+          v.play().catch(function () {});
+        }
+      });
+
+      if (restartTogether && allReady) {
+        syncedOnce = true;
+      }
+    }
+
+    const allVideos = getAllVideos();
+    function onCanPlay() {
+      playAllVisible(true);
+    }
+
+    allVideos.forEach(function (v) {
+      v.addEventListener("loadeddata", onCanPlay);
+      v.addEventListener("canplay", onCanPlay);
+      v.addEventListener("pause", function () {
+        if (v.offsetParent !== null && document.visibilityState === "visible") {
+          v.play().catch(function () {});
+        }
+      });
+    });
+
+    const observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            playAllVisible(true);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(section);
+
+    function onResize() {
+      playAllVisible(false);
+    }
+    window.addEventListener("resize", onResize);
+
+    playAllVisible(true);
+
+    return function () {
+      observer.disconnect();
+      window.removeEventListener("resize", onResize);
+      allVideos.forEach(function (v) {
+        v.removeEventListener("loadeddata", onCanPlay);
+        v.removeEventListener("canplay", onCanPlay);
+      });
+    };
+  }, []);
+
   return (
-    <section id="projects" className="w-full overflow-hidden bg-white">
+    // Outer section (outside the architectural frame) has a subtle light-gray background (#f3f3f3)
+    <section
+      ref={sectionRef}
+      id="projects"
+      className="w-full overflow-hidden bg-[#f3f3f3]"
+    >
       {/* ===================== MOBILE ===================== */}
-      <div
-        className="relative flex flex-col gap-10 px-6 py-12 sm:hidden"
-        style={BG_LINE_GRID_STYLE}
-      >
+      <div className="relative flex flex-col gap-8 px-6 py-12 sm:hidden">
+        {/* Inside of the mobile architectural frame stays pure white with grid lines */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-4 left-3 right-3 top-4 bg-white"
+          style={BG_LINE_GRID_STYLE}
+        />
+
         {/* Symmetric Mobile architectural border lines (all #b8b8b8) */}
         <span
           aria-hidden="true"
@@ -389,7 +510,7 @@ export default function Projects() {
           Projects
         </motion.h2>
 
-        <div className="flex flex-col gap-10">
+        <div className="relative z-10 flex flex-col gap-8">
           {projects.map(function (project, index) {
             return (
               <MobileProjectCard key={project.number} project={project} index={index} />
@@ -415,11 +536,12 @@ export default function Projects() {
       {/* ===================== DESKTOP ===================== */}
       <div className="hidden px-0 py-4 sm:block sm:py-6">
         <div className="mx-auto w-full px-[2.6vw]">
-          <div className="relative mx-auto w-full max-w-[3000px] overflow-hidden bg-white py-[18px]">
-            {/* Architectural background line grid clipped inside the symmetric outer frame */}
+          {/* Outer area outside the 1.5% / 18px frame lines is light gray (#f3f3f3), while the inner box is pure white */}
+          <div className="relative mx-auto w-full max-w-[3000px] overflow-hidden bg-[#f3f3f3] pb-[clamp(64px,4.8vw,108px)] pt-[clamp(24px,2.2vw,48px)]">
+            {/* Pure white inner box + architectural background line grid clipped strictly inside the symmetric outer frame */}
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute bottom-[18px] left-[1.5%] right-[1.5%] top-[18px]"
+              className="pointer-events-none absolute bottom-[18px] left-[1.5%] right-[1.5%] top-[18px] bg-white"
               style={BG_LINE_GRID_STYLE}
             />
 
@@ -447,33 +569,31 @@ export default function Projects() {
             <Crosshair className="left-[1.5%] bottom-[18px] translate-y-1/2" />
             <Crosshair className="left-[98.5%] bottom-[18px] translate-y-1/2" />
 
-            {/* Inner content box with symmetric padding inside the 1.5% / 18px frame */}
-            <div className="relative z-10 mx-[1.5%] flex flex-col px-[clamp(24px,4vw,72px)] pb-[clamp(44px,4.2vw,84px)] pt-[clamp(28px,3vw,60px)]">
-              {/* Top Header Row */}
-              <div className="mb-[clamp(28px,3vw,56px)] flex items-end justify-between">
-                <motion.h2
-                  className="font-display text-[clamp(25px,3.77vw,90px)] uppercase leading-none tracking-[-0.06em] text-black"
-                  initial={{ opacity: 0, y: -20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={viewport}
-                  transition={revealTransition()}
-                >
-                  Projects
-                </motion.h2>
-              </div>
+            {/* Top Header Row */}
+            <div className="relative z-10 mx-[1.5%] mb-[clamp(18px,1.8vw,38px)] flex items-end justify-between px-[6.25%] pt-[clamp(12px,1.4vw,32px)]">
+              <motion.h2
+                className="font-display text-[clamp(25px,3.77vw,90px)] uppercase leading-none tracking-[-0.06em] text-black"
+                initial={{ opacity: 0, y: -20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={viewport}
+                transition={revealTransition()}
+              >
+                Projects
+              </motion.h2>
+            </div>
 
-              {/* 3 equal cards with uniform spacing between cards and outer edges */}
-              <div className="mx-auto grid w-full max-w-[1280px] grid-cols-3 items-start justify-items-center gap-[clamp(24px,4.5vw,80px)]">
-                {projects.map(function (project, index) {
-                  return (
-                    <ProjectCard key={project.number} project={project} index={index} />
-                  );
-                })}
-              </div>
+            {/* 3 equal cards (each 22.5% wide) inside the 1.5% architectural frame using `justify-evenly`:
+                Guarantees all 4 horizontal spaces are 100% equal */}
+            <div className="relative mx-[1.5%] flex items-start justify-evenly pt-[clamp(12px,1.2vw,28px)]">
+              {projects.map(function (project, index) {
+                return (
+                  <ProjectCard key={project.number} project={project} index={index} />
+                );
+              })}
             </div>
 
             {/* GitHub link in the bottom-right corner */}
-            <div className="absolute bottom-[34px] right-[3.2%] z-10 translate-y-1/2">
+            <div className="absolute bottom-[32px] right-[3.2%] z-10 translate-y-1/2">
               <motion.a
                 href="https://github.com/"
                 target="_blank"
