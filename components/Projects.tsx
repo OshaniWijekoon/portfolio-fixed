@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { FocusEvent, PointerEvent } from "react";
 import { motion } from "framer-motion";
@@ -13,6 +14,9 @@ type Project = {
   techItems?: string[];
   href?: string;
 };
+
+// Main PC monitor image from your public/ folder
+const PC_BG_IMAGE = "/unnamed.webp_15740045_2K.jpg";
 
 const projects: Project[] = [
   {
@@ -57,8 +61,47 @@ const projectVideos: Record<string, { src: string; label: string }> = {
   },
 };
 
-// Film-grain texture on the card videos only
-const GRAIN_OPACITY = 0.25;
+// Just a little longer vertically (`height: "34.5%"`, up from `"31.5%"`)
+// while keeping the exact same width (`14.2%`), outer bezel distance (`25.4%` / `60.1%`), and perspective tilt:
+const SCREEN_BOX_POSITIONS: Record<
+  number,
+  {
+    left: string;
+    top: string;
+    width: string;
+    height: string;
+    transform: string;
+    parallaxDepth: number;
+  }
+> = {
+  0: {
+    left: "25.4%",
+    top: "15.2%",
+    width: "14.2%",
+    height: "34.5%",
+    transform: "rotate(1.1deg) skewX(-1.3deg)",
+    parallaxDepth: -1,
+  },
+  1: {
+    left: "42.75%",
+    top: "20.0%",
+    width: "14.2%",
+    height: "34.5%",
+    transform: "rotate(0deg)",
+    parallaxDepth: 1.35,
+  },
+  2: {
+    left: "60.1%",
+    top: "15.2%",
+    width: "14.2%",
+    height: "34.5%",
+    transform: "rotate(-1.5deg) skewX(1.6deg)",
+    parallaxDepth: -1,
+  },
+};
+
+// Subtle film-grain texture on the card videos
+const GRAIN_OPACITY = 0.18;
 const GRAIN_SVG =
   "<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'>" +
   "<filter id='n' x='0' y='0' width='100%' height='100%'>" +
@@ -74,52 +117,30 @@ const GRAIN_SVG =
   "</svg>";
 const GRAIN_URL = 'url("data:image/svg+xml,' + encodeURIComponent(GRAIN_SVG) + '")';
 
-// Subtle background grid lines (lighter than the #b8b8b8 frame/border lines)
+// Subtle background grid lines across the entire section outside the main image
 const BG_LINE_GRID_STYLE = {
   backgroundImage:
-    "linear-gradient(to right, rgba(0,0,0,0.045) 1px, transparent 1px), " +
-    "linear-gradient(to bottom, rgba(0,0,0,0.045) 1px, transparent 1px)",
+    "linear-gradient(to right, rgba(0,0,0,0.048) 1px, transparent 1px), " +
+    "linear-gradient(to bottom, rgba(0,0,0,0.048) 1px, transparent 1px)",
   backgroundSize: "clamp(36px, 3.2vw, 64px) clamp(36px, 3.2vw, 64px)",
 };
-
-// Small architectural "+" crosshair marker at line intersections
-function Crosshair(props: { className?: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={
-        "pointer-events-none absolute z-10 h-[9px] w-[9px] -translate-x-1/2 " +
-        (props.className ?? "")
-      }
-    >
-      <span className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-[#8a8a8a]" />
-      <span className="absolute bottom-0 top-0 left-1/2 w-px -translate-x-1/2 bg-[#8a8a8a]" />
-    </span>
-  );
-}
 
 // How long the card takes to turn
 const FLIP_DURATION_MS = 1000;
 
-// Slightly smaller than `w-[25%] max-w-[360px]` (reduced by ~10% to `w-[22.5%] max-w-[315px]`)
-// `justify-evenly` keeps all 4 horizontal spaces 100% equal.
-const DESKTOP_CARD_WIDTH = "w-[22.5%] max-w-[315px] shrink-0";
-const MOBILE_CARD_MAX = "w-full max-w-[245px]";
+const MOBILE_CARD_MAX = "w-full max-w-[250px]";
 
-// Balanced portrait ratio (`aspect-[3/4]`)
-const CARD_SHAPE = "aspect-[3/4] rounded-[clamp(14px,1.35vw,24px)]";
-
-// Size classes for the desktop and mobile versions of the card
+// Size classes for the desktop (inside PC screen) and mobile versions of the card
 const SIZES = {
   desktop: {
     backBody:
-      "gap-[clamp(8px,0.75vw,16px)] p-[clamp(14px,1.3vw,26px)]",
-    number: "text-[clamp(10px,0.72vw,15px)]",
-    desc: "text-[clamp(11px,0.85vw,17px)] leading-[1.55] tracking-[0.07em]",
-    techLabel: "text-[clamp(10px,0.75vw,15px)] tracking-[0.12em]",
-    techList: "text-[clamp(10px,0.75vw,15px)] leading-[1.6] tracking-[0.12em]",
-    link: "text-[clamp(10px,0.75vw,15px)] tracking-[0.14em]",
-    name: "mt-[clamp(11px,1vw,20px)] px-[clamp(2px,0.35vw,6px)] text-[clamp(14px,1.12vw,23px)] leading-[1.3] tracking-[-0.005em]",
+      "gap-[clamp(5px,0.45vw,10px)] p-[clamp(9px,0.85vw,16px)]",
+    number: "text-[clamp(8px,0.55vw,11px)]",
+    desc: "text-[clamp(8.5px,0.62vw,12px)] leading-[1.42] tracking-[0.03em]",
+    techLabel: "text-[clamp(8px,0.58vw,11px)] tracking-[0.08em]",
+    techList: "text-[clamp(8px,0.58vw,11px)] leading-[1.42] tracking-[0.06em]",
+    link: "text-[clamp(8px,0.58vw,11px)] tracking-[0.1em]",
+    name: "mt-[clamp(6px,0.5vw,11px)] text-center text-[clamp(9px,0.72vw,13.5px)] leading-[1.22] tracking-[-0.005em] text-white/95 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]",
   },
   mobile: {
     backBody: "gap-3 p-4",
@@ -128,7 +149,7 @@ const SIZES = {
     techLabel: "text-[11.5px] tracking-[0.05em]",
     techList: "text-[11.5px] leading-[1.6] tracking-[0.05em]",
     link: "text-[11.5px] tracking-[0.1em]",
-    name: "mt-2.5 px-1 text-[16px] leading-[1.3] tracking-[-0.005em]",
+    name: "mt-2.5 px-1 text-center text-[15px] leading-[1.3] tracking-[-0.005em] text-[#12182b]",
   },
 };
 
@@ -142,7 +163,10 @@ function EditorialVisual(props: { number: string }) {
     el.defaultMuted = true;
     el.muted = true;
     el.playsInline = true;
-  }, []);
+    if (el.paused) {
+      el.play().catch(function () {});
+    }
+  }, [vid.src]);
 
   return (
     <>
@@ -156,12 +180,15 @@ function EditorialVisual(props: { number: string }) {
         muted
         playsInline
         preload="auto"
-        className="pointer-events-none absolute inset-0 h-full w-full rounded-[inherit] object-cover object-center"
+        style={{
+          filter: "url(#projects-video-sharpen) contrast(1.06) brightness(1.02)",
+        }}
+        className="pointer-events-none absolute inset-0 h-full w-full rounded-none object-cover object-center [backface-visibility:hidden]"
       />
-      {/* Grain overlay on top of the video */}
+      {/* Subtle grain overlay on top of the video */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-[inherit]"
+        className="pointer-events-none absolute inset-0 rounded-none"
         style={{
           backgroundImage: GRAIN_URL,
           backgroundSize: "240px 240px",
@@ -171,12 +198,12 @@ function EditorialVisual(props: { number: string }) {
       {/* Diagonal glass reflection sheen across the card face */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[linear-gradient(130deg,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0.06)_38%,transparent_58%,rgba(255,255,255,0.16)_100%)]"
+        className="pointer-events-none absolute inset-0 rounded-none bg-[linear-gradient(130deg,rgba(255,255,255,0.32)_0%,rgba(255,255,255,0.06)_38%,transparent_58%,rgba(255,255,255,0.16)_100%)]"
       />
-      {/* Frosted glass inner bezel highlight + crisp outer edge ring */}
+      {/* Crisp square border (0 radius) matching the wireframe box on the PC monitor */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-[inherit] border border-white/55 ring-1 ring-black/15 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.85),inset_0_-1.5px_2px_rgba(0,0,0,0.2)]"
+        className="pointer-events-none absolute inset-0 rounded-none border border-white/50 ring-1 ring-black/45 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.8)]"
       />
     </>
   );
@@ -212,12 +239,12 @@ function FlipCard(props: { project: Project; mobile: boolean }) {
   }
 
   return (
-    <div className="flex w-full flex-col">
-      {/* The card itself: only this area reacts to the cursor */}
+    <div className="flex h-full w-full flex-col">
+      {/* The video frame box */}
       <div
         className={
-          "relative w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 " +
-          CARD_SHAPE
+          "relative w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 " +
+          (props.mobile ? "aspect-[4/4.85] rounded-none" : "h-full w-full rounded-none")
         }
         style={{ perspective: "1400px" }}
         tabIndex={0}
@@ -238,22 +265,18 @@ function FlipCard(props: { project: Project; mobile: boolean }) {
             transitionDuration: FLIP_DURATION_MS + "ms",
           }}
         >
-          {/* ---------- FRONT: video with glassy bezel & soft glass elevation shadow ---------- */}
+          {/* ---------- FRONT: sharp square corners (0 radius) + glassy bezel ---------- */}
           <div
-            className={
-              "absolute inset-0 overflow-hidden bg-[#d8d8d8] shadow-[0_14px_32px_-10px_rgba(0,0,0,0.18)] [clip-path:inset(0_round_clamp(14px,1.35vw,24px))] " +
-              CARD_SHAPE
-            }
+            className="absolute inset-0 overflow-hidden rounded-none bg-[#2a2a2a] shadow-[0_14px_30px_-8px_rgba(0,0,0,0.6)] [clip-path:inset(0)]"
             style={hidden}
           >
             <EditorialVisual number={project.number} />
           </div>
 
-          {/* ---------- BACK: dark smoked-glass finish with specular glass rim ---------- */}
+          {/* ---------- BACK: sharp square corners (0 radius) + dark smoked-glass finish ---------- */}
           <div
             className={
-              "absolute inset-0 flex flex-col overflow-hidden border border-white/25 bg-zinc-950/90 text-white shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.35),0_14px_32px_-10px_rgba(0,0,0,0.28)] backdrop-blur-xl [clip-path:inset(0_round_clamp(14px,1.35vw,24px))] " +
-              CARD_SHAPE +
+              "absolute inset-0 flex flex-col overflow-hidden rounded-none border border-white/30 bg-zinc-950/92 text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.35),0_14px_30px_-8px_rgba(0,0,0,0.65)] backdrop-blur-xl [clip-path:inset(0)]" +
               (flipped ? "" : " pointer-events-none")
             }
             style={{ ...hidden, transform: "rotateY(180deg)" }}
@@ -290,7 +313,7 @@ function FlipCard(props: { project: Project; mobile: boolean }) {
                   >
                     {project.techLabel}:
                   </p>
-                  <ul className={"mt-[0.5em] font-sans text-white/80 " + s.techList}>
+                  <ul className={"mt-[0.35em] font-sans text-white/80 " + s.techList}>
                     {project.techItems.map(function (item) {
                       return <li key={item}>- {item}</li>;
                     })}
@@ -315,9 +338,9 @@ function FlipCard(props: { project: Project; mobile: boolean }) {
         </div>
       </div>
 
-      {/* Project name under the card (outside the flip area, so hovering it does nothing) */}
+      {/* Project name under the card */}
       {project.title ? (
-        <h3 className={"font-body font-medium text-[#12182b] " + s.name}>
+        <h3 className={"font-body font-medium " + s.name}>
           {project.title}
         </h3>
       ) : null}
@@ -325,19 +348,53 @@ function FlipCard(props: { project: Project; mobile: boolean }) {
   );
 }
 
-function ProjectCard(props: { project: Project; index: number }) {
+function ScreenProjectCard(props: {
+  project: Project;
+  index: number;
+  pcCursorNorm: { nx: number; ny: number } | null;
+}) {
   const project = props.project;
+  const pos = SCREEN_BOX_POSITIONS[props.index] ?? SCREEN_BOX_POSITIONS[1];
+
+  // Multi-layered magnetic depth parallax ONLY when the cursor is moving inside the PC monitor
+  const shiftX = props.pcCursorNorm
+    ? props.pcCursorNorm.nx * 7 * pos.parallaxDepth
+    : 0;
+  const shiftY = props.pcCursorNorm
+    ? props.pcCursorNorm.ny * 6 * pos.parallaxDepth
+    : 0;
 
   return (
     <motion.article
-      className={"relative z-10 flex flex-col " + DESKTOP_CARD_WIDTH}
+      style={{
+        left: pos.left,
+        top: pos.top,
+        width: pos.width,
+        height: pos.height,
+      }}
+      className="absolute z-20"
       initial="hidden"
       whileInView="show"
       viewport={viewport}
       variants={fadeUp}
-      transition={revealTransition(staggerDelay(props.index, 0.12))}
+      animate={{
+        x: shiftX,
+        y: shiftY,
+      }}
+      transition={{
+        x: { type: "spring", stiffness: 180, damping: 22 },
+        y: { type: "spring", stiffness: 180, damping: 22 },
+      }}
     >
-      <FlipCard project={project} mobile={false} />
+      <div
+        className="h-full w-full"
+        style={{
+          transform: pos.transform,
+          transformOrigin: "center center",
+        }}
+      >
+        <FlipCard project={project} mobile={false} />
+      </div>
     </motion.article>
   );
 }
@@ -361,6 +418,30 @@ function MobileProjectCard(props: { project: Project; index: number }) {
 
 export default function Projects() {
   const sectionRef = useRef<HTMLElement>(null);
+  const pcScreenRef = useRef<HTMLDivElement>(null);
+
+  // Tracks cursor position ONLY inside the PC monitor for the interactive studio HUD & magnetic depth parallax
+  const [pcCursor, setPcCursor] = useState<{
+    x: number;
+    y: number;
+    nx: number;
+    ny: number;
+  } | null>(null);
+
+  function updatePcCursor(clientX: number, clientY: number) {
+    const el = pcScreenRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    const nx = (x / rect.width - 0.5) * 2; // -1 to 1
+    const ny = (y / rect.height - 0.5) * 2; // -1 to 1
+    setPcCursor({ x, y, nx, ny });
+  }
+
+  function handlePcLeave() {
+    setPcCursor(null);
+  }
 
   // Ensure all visible card videos start and play simultaneously
   useEffect(function () {
@@ -463,43 +544,42 @@ export default function Projects() {
   }, []);
 
   return (
-    // Outer section (outside the architectural frame) has a subtle light-gray background (#f3f3f3)
     <section
       ref={sectionRef}
       id="projects"
-      className="w-full overflow-hidden bg-[#f3f3f3]"
+      className="relative w-full overflow-hidden bg-white"
+      style={BG_LINE_GRID_STYLE}
     >
+      {/* High-Definition SVG Upscale / Sharpening Filters for the Main PC Image and Videos */}
+      <svg
+        aria-hidden="true"
+        width="0"
+        height="0"
+        className="pointer-events-none absolute"
+        focusable="false"
+      >
+        <defs>
+          {/* Crisp upscale convolution filter for the 2K PC monitor image */}
+          <filter id="projects-hd-upscale" colorInterpolationFilters="sRGB">
+            <feConvolveMatrix
+              order="3"
+              preserveAlpha="true"
+              kernelMatrix="0 -0.45 0 -0.45 2.8 -0.45 0 -0.45 0"
+            />
+          </filter>
+          {/* Subtle micro-sharpening filter for the card videos */}
+          <filter id="projects-video-sharpen" colorInterpolationFilters="sRGB">
+            <feConvolveMatrix
+              order="3"
+              preserveAlpha="true"
+              kernelMatrix="0 -0.28 0 -0.28 2.12 -0.28 0 -0.28 0"
+            />
+          </filter>
+        </defs>
+      </svg>
+
       {/* ===================== MOBILE ===================== */}
-      <div className="relative flex flex-col gap-8 px-6 py-12 sm:hidden">
-        {/* Inside of the mobile architectural frame stays pure white with grid lines */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-4 left-3 right-3 top-4 bg-white"
-          style={BG_LINE_GRID_STYLE}
-        />
-
-        {/* Symmetric Mobile architectural border lines (all #b8b8b8) */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-4 h-px bg-[#b8b8b8]"
-        />
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-4 h-px bg-[#b8b8b8]"
-        />
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 left-3 w-px bg-[#b8b8b8]"
-        />
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-3 w-px bg-[#b8b8b8]"
-        />
-        <Crosshair className="left-3 top-4 -translate-y-1/2" />
-        <Crosshair className="left-[calc(100%-12px)] top-4 -translate-y-1/2" />
-        <Crosshair className="left-3 bottom-4 translate-y-1/2" />
-        <Crosshair className="left-[calc(100%-12px)] bottom-4 translate-y-1/2" />
-
+      <div className="relative flex flex-col gap-7 px-6 py-12 sm:hidden">
         <motion.h2
           className="relative z-10 font-display text-[40px] uppercase leading-none tracking-[-0.03em] text-black"
           initial={{ opacity: 0, y: -20 }}
@@ -510,7 +590,7 @@ export default function Projects() {
           Projects
         </motion.h2>
 
-        <div className="relative z-10 flex flex-col gap-8">
+        <div className="relative z-10 flex flex-col gap-7">
           {projects.map(function (project, index) {
             return (
               <MobileProjectCard key={project.number} project={project} index={index} />
@@ -534,46 +614,15 @@ export default function Projects() {
       </div>
 
       {/* ===================== DESKTOP ===================== */}
-      <div className="hidden px-0 py-4 sm:block sm:py-6">
-        <div className="mx-auto w-full px-[2.6vw]">
-          {/* Outer area outside the 1.5% / 18px frame lines is light gray (#f3f3f3), while the inner box is pure white */}
-          <div className="relative mx-auto w-full max-w-[3000px] overflow-hidden bg-[#f3f3f3] pb-[clamp(64px,4.8vw,108px)] pt-[clamp(24px,2.2vw,48px)]">
-            {/* Pure white inner box + architectural background line grid clipped strictly inside the symmetric outer frame */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-[18px] left-[1.5%] right-[1.5%] top-[18px] bg-white"
-              style={BG_LINE_GRID_STYLE}
-            />
-
-            {/* Symmetric Outer Architectural Frame Hairlines (exact integer pixels so all 4 lines render at identical darkness: #b8b8b8) */}
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute left-0 right-0 top-[18px] h-px bg-[#b8b8b8]"
-            />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-[18px] left-0 right-0 h-px bg-[#b8b8b8]"
-            />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 left-[1.5%] top-0 w-px bg-[#b8b8b8]"
-            />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 right-[1.5%] top-0 w-px bg-[#b8b8b8]"
-            />
-
-            {/* Corner "+" Crosshairs */}
-            <Crosshair className="left-[1.5%] top-[18px] -translate-y-1/2" />
-            <Crosshair className="left-[98.5%] top-[18px] -translate-y-1/2" />
-            <Crosshair className="left-[1.5%] bottom-[18px] translate-y-1/2" />
-            <Crosshair className="left-[98.5%] bottom-[18px] translate-y-1/2" />
-
-            {/* Top Header Row */}
-            <div className="relative z-10 mx-[1.5%] mb-[clamp(18px,1.8vw,38px)] flex items-end justify-between px-[6.25%] pt-[clamp(12px,1.4vw,32px)]">
+      <div className="hidden px-[2vw] py-[clamp(28px,2.8vw,56px)] sm:block">
+        {/* Main PC Monitor Stage centered inside the line-check background */}
+        <div className="relative z-10 mx-auto w-[95%] max-w-[1760px]">
+          <div className="relative aspect-[1024/571] w-full overflow-hidden">
+            {/* ---------- TOPIC "PROJECTS" IN THE TOP-LEFT CORNER ---------- */}
+            <div className="pointer-events-none absolute left-[clamp(20px,2.4vw,48px)] top-[clamp(18px,2vw,40px)] z-30">
               <motion.h2
-                className="font-display text-[clamp(25px,3.77vw,90px)] uppercase leading-none tracking-[-0.06em] text-black"
-                initial={{ opacity: 0, y: -20 }}
+                className="font-display text-[clamp(28px,3.8vw,86px)] uppercase leading-none tracking-[-0.06em] text-black"
+                initial={{ opacity: 0, y: -16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={viewport}
                 transition={revealTransition()}
@@ -582,28 +631,135 @@ export default function Projects() {
               </motion.h2>
             </div>
 
-            {/* 3 equal cards (each 22.5% wide) inside the 1.5% architectural frame using `justify-evenly`:
-                Guarantees all 4 horizontal spaces are 100% equal */}
-            <div className="relative mx-[1.5%] flex items-start justify-evenly pt-[clamp(12px,1.2vw,28px)]">
+            {/* Main PC Monitor Image with HD Upscale Sharpening Filter */}
+            <Image
+              src={PC_BG_IMAGE}
+              alt="PC Monitor Display Stage"
+              fill
+              sizes="95vw"
+              quality={100}
+              unoptimized
+              priority
+              style={{
+                filter: "url(#projects-hd-upscale) contrast(1.04)",
+              }}
+              className="pointer-events-none object-cover object-center select-none"
+            />
+
+            {/* ---------- CREATIVE PC MONITOR SCREEN INTERACTION (activates ONLY when cursor is on the PC monitor) ---------- */}
+            <div
+              ref={pcScreenRef}
+              onPointerMove={function (e) {
+                updatePcCursor(e.clientX, e.clientY);
+              }}
+              onPointerLeave={handlePcLeave}
+              className="absolute left-[21.4%] top-[6.8%] z-10 h-[55.5%] w-[57%] overflow-hidden"
+            >
+              {/* 1. Subtle architectural grid wake-up inside the PC screen when hovered */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 transition-opacity duration-500"
+                style={{
+                  opacity: pcCursor ? 0.22 : 0,
+                  backgroundImage:
+                    "linear-gradient(to right, rgba(255,255,255,0.22) 1px, transparent 1px), " +
+                    "linear-gradient(to bottom, rgba(255,255,255,0.22) 1px, transparent 1px)",
+                  backgroundSize: "32px 32px",
+                  maskImage: pcCursor
+                    ? `radial-gradient(240px circle at ${pcCursor.x}px ${pcCursor.y}px, black 0%, transparent 80%)`
+                    : "none",
+                  WebkitMaskImage: pcCursor
+                    ? `radial-gradient(240px circle at ${pcCursor.x}px ${pcCursor.y}px, black 0%, transparent 80%)`
+                    : "none",
+                }}
+              />
+
+              {/* 2. Precision cursor-tracking X / Y architectural laser hairlines across the PC screen */}
+              {pcCursor ? (
+                <>
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"
+                    style={{ top: pcCursor.y }}
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 w-px bg-gradient-to-b from-transparent via-white/25 to-transparent"
+                    style={{ left: pcCursor.x }}
+                  />
+                  {/* Small target reticle ring at cursor intersection on the monitor */}
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/40 transition-transform duration-150"
+                    style={{ left: pcCursor.x, top: pcCursor.y }}
+                  />
+                </>
+              ) : null}
+
+              {/* 3. Studio monitor HUD status bar & corner viewfinder brackets that power on when cursor is on the PC */}
+              <div
+                aria-hidden="true"
+                className={
+                  "pointer-events-none absolute inset-3 transition-opacity duration-500 " +
+                  (pcCursor ? "opacity-100" : "opacity-0")
+                }
+              >
+                {/* Top-left corner bracket */}
+                <span className="absolute left-0 top-0 h-2.5 w-2.5 border-l border-t border-white/45" />
+                {/* Top-right corner bracket */}
+                <span className="absolute right-0 top-0 h-2.5 w-2.5 border-r border-t border-white/45" />
+                {/* Bottom-left corner bracket */}
+                <span className="absolute bottom-0 left-0 h-2.5 w-2.5 border-b border-l border-white/45" />
+                {/* Bottom-right corner bracket */}
+                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 border-b border-r border-white/45" />
+
+                {/* Minimal studio telemetry readout at top-right of the PC screen */}
+                <div className="absolute right-3 top-1.5 flex items-center gap-2 font-mono text-[clamp(7px,0.52vw,10px)] uppercase tracking-[0.18em] text-white/55">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/80" />
+                  <span>
+                    STUDIO DISPLAY //{" "}
+                    {pcCursor
+                      ? `${Math.round(pcCursor.x)}×${Math.round(pcCursor.y)}`
+                      : "IDLE"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 3 Slightly Longer Video Cards (`height: "34.5%"`) with multi-depth magnetic parallax when cursor is on the PC */}
+            <div
+              onPointerMove={function (e) {
+                updatePcCursor(e.clientX, e.clientY);
+              }}
+              onPointerLeave={handlePcLeave}
+              className="contents"
+            >
               {projects.map(function (project, index) {
                 return (
-                  <ProjectCard key={project.number} project={project} index={index} />
+                  <ScreenProjectCard
+                    key={project.number}
+                    project={project}
+                    index={index}
+                    pcCursorNorm={
+                      pcCursor ? { nx: pcCursor.nx, ny: pcCursor.ny } : null
+                    }
+                  />
                 );
               })}
             </div>
 
-            {/* GitHub link in the bottom-right corner */}
-            <div className="absolute bottom-[32px] right-[3.2%] z-10 translate-y-1/2">
+            {/* ---------- GITHUB LINK ON THE BOTTOM-RIGHT SIDE OF THE MAIN IMAGE ---------- */}
+            <div className="absolute bottom-[clamp(20px,2.4vw,44px)] right-[clamp(24px,3vw,58px)] z-30">
               <motion.a
                 href="https://github.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block font-sans text-[clamp(10px,0.78vw,18px)] tracking-[0.16em] text-[#3e3e3e] underline decoration-[0.5px] underline-offset-[2px] transition-opacity hover:opacity-70"
+                className="block font-sans text-[clamp(11px,0.88vw,19px)] tracking-[0.16em] text-black underline decoration-[0.5px] underline-offset-[3px] drop-shadow-[0_1px_6px_rgba(255,255,255,0.95)] transition-opacity hover:opacity-70"
                 initial="hidden"
                 whileInView="show"
                 viewport={viewport}
                 variants={fadeUp}
-                transition={revealTransition(0.5)}
+                transition={revealTransition(0.4)}
               >
                 GitHub
               </motion.a>
